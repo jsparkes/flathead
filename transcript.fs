@@ -3,10 +3,10 @@ module Transcript
 open Utility
 
 type t =
-{
-  lines : string list;
-  width : int
-}
+    {
+      lines : string list;
+      width : int
+    }
 
 let empty = { lines = []; width = 80 }
 
@@ -14,11 +14,11 @@ let empty = { lines = []; width = 80 }
 the tail of the list is already word-wrapped. Returns the
 new list. *)
 
-let rec wrap_lines lines line_length =
+let rec wrap_lines (lines : List<string>) line_length =
   match lines with
   | [] -> []
   | unwrapped_line :: wrapped_lines ->
-    if String.contains unwrapped_line '\n' then
+    if unwrapped_line.Contains("\n") then
       (* Recursive case 1: there is a return in the last string.
        Split the string, solve the wrapping problem with no return,
        and then recurse on the remainder of the string. *)
@@ -47,6 +47,6 @@ let append transcript text =
   let unwrapped_lines =
     match transcript.lines with
     | [] -> [text]
-    | h :: t -> (h ^ text) :: t in
+    | h :: t -> (h + text) :: t in
   let wrapped_lines = wrap_lines unwrapped_lines transcript.width in
   { transcript with lines = wrapped_lines }
