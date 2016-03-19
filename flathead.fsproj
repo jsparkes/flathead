@@ -57,13 +57,14 @@
     <Compile Include="debugger.fs" />
     <Compile Include="dictionary.fs" />
     <Compile Include="iff.fs" />
+    <Compile Include="immutable_bytes.fs" />
+    <Compile Include="story.fs" />
     <Compile Include="local_store.fs" />
     <Compile Include="evaluation_stack.fs" />
     <Compile Include="flathead.fs" />
     <Compile Include="frame.fs" />
     <Compile Include="frameset.fs" />
     <Compile Include="globals.fs" />
-    <Compile Include="immutable_bytes.fs" />
     <Compile Include="instruction.fs" />
     <Compile Include="interpreter.fs" />
     <Compile Include="my_graphics.fs" />
@@ -74,7 +75,6 @@
     <Compile Include="routine.fs" />
     <Compile Include="screen.fs" />
     <Compile Include="status_line.fs" />
-    <Compile Include="story.fs" />
     <Compile Include="tokeniser.fs" />
     <Compile Include="transcript.fs" />
     <Compile Include="window.fs" />

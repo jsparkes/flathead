@@ -9,16 +9,16 @@ memory as a dynamic block that tracks updates and a static block that
 never changes at all. *)
 
 type t =
-{
-  dynamic_memory : Immutable_bytes.t;
-  static_memory : string;
-}
+    {
+      dynamic_memory : Immutable_bytes.t;
+      static_memory : string;
+    }
 
-let make dynamic static =
-{
-    dynamic_memory = Immutable_bytes.make dynamic;
-    static_memory = static;
-}
+let make dynamic stattic =
+    {
+        dynamic_memory = Immutable_bytes.make dynamic;
+        static_memory = stattic;
+    }
 
 let read_byte story address =
   let dynamic_size = Immutable_bytes.size story.dynamic_memory in
@@ -35,7 +35,7 @@ let read_word story address =
 
 let write_byte story address value =
   let dynamic_memory = Immutable_bytes.write_byte story.dynamic_memory address value in
-  { story with dynamic_memory }
+  { story with dynamic_memory = dynamic_memory }
 
 let write_word story address value =
   let high = (value lsr 8) land 0xFF in
@@ -500,9 +500,9 @@ let file_size story =
   let file_size_offset = Word_address 26 in
   let s = read_word story file_size_offset in
   let m = match (version story) with
-  | V1  | V2  | V3 -> 2
-  | V4  | V5 -> 4
-  | _ -> 8 in
+          | V1  | V2  | V3 -> 2
+          | V4  | V5 -> 4
+          | _ -> 8 in
   File_size (s * m)
 
 let header_checksum story =
@@ -656,14 +656,14 @@ let header_extension story =
   Word_address (read_word story header_extension_offset)
 
 let header_extension_word story offset =
-  let base = header_extension story in
-  if base = Word_address 0 then 0
-  else read_word story (inc_word_addr_by base offset)
+  let baase = header_extension story in
+  if baase = Word_address 0 then 0
+  else read_word story (inc_word_addr_by baase offset)
 
 let set_header_extension_word story offset value =
-  let base = header_extension story in
-  if base = Word_address 0 then story
-  else write_word story (inc_word_addr_by base offset) value
+  let baase = header_extension story in
+  if baase = Word_address 0 then story
+  else write_word story (inc_word_addr_by baase offset) value
 
 let mouse_x_offset = 1
 let mouse_x story =
@@ -691,17 +691,17 @@ let display_header story =
   let (Dictionary_base dictionary_base) = dictionary_base story in
   let (High_memory_base high_memory_base) = high_memory_base story in
   let (Instruction ipc) = initial_program_counter story in
-  Printf.sprintf "Version                     : %s\n" (display_version (version story)) ^
-  Printf.sprintf "Release number              : %d\n" release_number ^
-  Printf.sprintf "Serial number               : %s\n" serial_number ^
-  Printf.sprintf "Checksum                    : %04x\n" checksum ^
-  Printf.sprintf "File size                   : %d\n" file_size ^
-  Printf.sprintf "Abbreviations table base    : %04x\n" abbrev_table_base ^
-  Printf.sprintf "Object table base           : %04x\n" object_table_base ^
-  Printf.sprintf "Global variables table base : %04x\n" global_table_base ^
-  Printf.sprintf "Static memory base          : %04x\n" static_memory_base  ^
-  Printf.sprintf "Dictionary base             : %04x\n" dictionary_base ^
-  Printf.sprintf "High memory base            : %04x\n" high_memory_base ^
+  Printf.sprintf "Version                     : %s\n" (display_version (version story)) +
+  Printf.sprintf "Release number              : %d\n" release_number +
+  Printf.sprintf "Serial number               : %s\n" serial_number +
+  Printf.sprintf "Checksum                    : %04x\n" checksum +
+  Printf.sprintf "File size                   : %d\n" file_size +
+  Printf.sprintf "Abbreviations table base    : %04x\n" abbrev_table_base +
+  Printf.sprintf "Object table base           : %04x\n" object_table_base +
+  Printf.sprintf "Global variables table base : %04x\n" global_table_base +
+  Printf.sprintf "Static memory base          : %04x\n" static_memory_base  +
+  Printf.sprintf "Dictionary base             : %04x\n" dictionary_base +
+  Printf.sprintf "High memory base            : %04x\n" high_memory_base +
   Printf.sprintf "Initial program counter     : %04x\n" ipc
 
 let decode_routine_packed_address story (Packed_routine packed) =
@@ -738,6 +738,6 @@ let load filename =
     if dynamic_length > len then
       failwith (Printf.sprintf "%s is not a valid story file" filename)
     else 
-      let dynamic = String.sub file 0 dynamic_length in
-      let static = String.sub file dynamic_length (len - dynamic_length) in
-      make dynamic static
+      let dynamic = file.Substring(0, dynamic_length) in
+      let stattic = file.Substring(dynamic_length, (len - dynamic_length)) in
+      make dynamic stattic
