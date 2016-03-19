@@ -2,6 +2,7 @@ module Dictionary
 
 open Utility
 open Type
+open Story
 
 let invalid_address = Dictionary_address 0
 
@@ -18,11 +19,11 @@ followed by enough bytes to make up the size of the dictionary entry. *)
 let max_word_length story =
   if Story.v3_or_lower (Story.version story) then 6 else 9
 
-let word_separators_base (Dictionary_base base) =
-  Byte_address base
+let word_separators_base (Dictionary_base baase) =
+  Byte_address baase
 
-let word_separator_address base (Word_separator_number n) =
-  let ws_base = word_separators_base base in
+let word_separator_address baase (Word_separator_number n) =
+  let ws_base = word_separators_base baase in
   inc_byte_addr_by ws_base (n + 1)
 
 let word_separators_count story =
@@ -62,9 +63,9 @@ let table_base story =
   Dictionary_table_base addr
 
 let entry_address story (Dictionary dictionary_number) =
-  let (Dictionary_table_base base) = table_base story in
+  let (Dictionary_table_base baase) = table_base story in
   let length = entry_length story in
-  Dictionary_address (base + dictionary_number * length)
+  Dictionary_address (baase + dictionary_number * length)
 
 let entry story dictionary_number =
   let (Dictionary_address addr) = entry_address story dictionary_number in

@@ -40,15 +40,15 @@ strings, and is half the real address in v3 but different for other versions. *)
 let decode_word_address (Word_zstring word_address) =
   Zstring (word_address * 2)
 
-let first_abbrev_addr (Abbreviation_table_base base) =
-  Word_address base
+let first_abbrev_addr (Abbreviation_table_base baase) =
+  Word_address baase
 
 let abbreviation_zstring story (Abbreviation n) =
   if n < 0 || n >= abbreviation_table_length then
     failwith "bad offset into abbreviation table"
   else
-    let base = first_abbrev_addr (Story.abbreviations_table_base story) in
-    let abbr_addr = inc_word_addr_by base n in
+    let baase = first_abbrev_addr (Story.abbreviations_table_base story) in
+    let abbr_addr = inc_word_addr_by baase n in
     let word_addr = Word_zstring (Story.read_word story abbr_addr) in
     decode_word_address word_addr
 
@@ -78,15 +78,15 @@ let rec read story (Zstring address) =
     | (4, Alphabet _) -> ("", alphabet1)
     | (5, Alphabet _) -> ("", alphabet2)
     | (6, Alphabet 2)  -> ("", Leading)
-    | (_, Alphabet a) -> (alphabet_table.(a).(zchar), alphabet0)
-    | (_, Abbrev Abbreviation a) ->
+    | (_, Alphabet a) -> (alphabet_table.[a].[zchar], alphabet0)
+    | (_, Abbrev (Abbreviation a)) ->
       let abbrv = Abbreviation (a + zchar) in
       let addr = abbreviation_zstring story abbrv in
       let str = read story addr in
       (str, alphabet0)
     | (_, Leading) -> ("", (Trailing zchar))
     | (_, Trailing high) ->
-      let s = string_of_char (Char.chr (high * 32 + zchar)) in
+      let s = string_of_char (char (high * 32 + zchar)) in
       (s, alphabet0) in
 
   let rec aux acc state1 current_address =
@@ -99,7 +99,7 @@ let rec read story (Zstring address) =
     let (text1, state2) = process_zchar zchar1 state1 in
     let (text2, state3) = process_zchar zchar2 state2 in
     let (text3, state_next) = process_zchar zchar3 state3 in
-    let new_acc = acc ^ text1 ^ text2 ^ text3 in
+    let new_acc = acc + text1 + text2 + text3 in
     if is_end then new_acc
     else aux new_acc state_next (inc_word_addr current_address) in
   aux "" alphabet0 (Word_address address)
@@ -115,7 +115,7 @@ let display_bytes story (Zstring addr) =
     let zchar2 = fetch_bits bit9 size5 word in
     let zchar3 = fetch_bits bit4 size5 word in
     let s = Printf.sprintf "%02x %02x %02x " zchar1 zchar2 zchar3 in
-    let acc = acc ^ s in
+    let acc = acc + s in
     if is_end = 1 then acc
     else aux (inc_word_addr current) acc in
   aux (Word_address addr) ""
