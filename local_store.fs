@@ -8,20 +8,21 @@ module Local_store
 open Utility
 open Iff
 open Type
+open Routine
 
 type t =
-{
-  locals : int IntMap.t;
-  count : int;
-  arguments_supplied : int;
-}
+    {
+      locals : Map<int, int>
+      count : int;
+      arguments_supplied : int;
+    }
 
 (* TODO: Be more clever *)
 let make locals count arguments_supplied =
-  { locals; count; arguments_supplied }
+  { locals = locals; count = count; arguments_supplied = arguments_supplied }
 
 let empty =
-  { locals = IntMap.empty; count = 0; arguments_supplied = 0 }
+  { locals = Map.empty; count = 0; arguments_supplied = 0 }
 
 let maximum_local = 15
 
@@ -30,22 +31,22 @@ let write_local local_store (Local local) value =
     failwith (Printf.sprintf "write_local: local %d invalid; count is %d" local local_store.count)
   else
     let value = unsigned_word value in
-    { local_store with locals = IntMap.add local value local_store.locals }
+    { local_store with locals = Map.add local value local_store.locals }
 
 let read_local local_store (Local local) =
   if local < 0 || local > local_store.count then
     failwith (Printf.sprintf "read_local: local %d invalid; count is %d" local local_store.count)
   else
-    IntMap.find local local_store.locals
+    Map.find local local_store.locals
 
 (* Handy debugging methods *)
-let display_locals local_store =
-  let to_string local value =
-    Printf.sprintf "local%01x=%04x " (local - 1) value in
-  let folder local value acc =
-    acc ^ (to_string local value) in
-  let locals = local_store.locals in
-  IntMap.fold folder locals ""
+//let display_locals local_store =
+//  let to_string local value =
+//    Printf.sprintf "local%01x=%04x " (local - 1) value in
+//  let folder local value acc =
+//    acc + (to_string local value) in
+//  let locals = local_store.locals in
+//  Map.fold folder locals ""
 
 let make_locals_record local_store =
   let rec aux acc n =
@@ -66,15 +67,15 @@ let make_locals_from_record arguments_supplied locals_list =
     | [] -> map
     | h :: t ->
       let v = decode_int16 h in
-      let new_map = IntMap.add i v map in
+      let new_map = Map.add i v map in
       aux new_map (i + 1) t in
-  let map = aux IntMap.empty 1 locals_list in
-  { locals = map; count = List.length locals_list ; arguments_supplied }
+  let map = aux Map.empty 1 locals_list in
+  { locals = map; count = List.length locals_list ; arguments_supplied = arguments_supplied }
 
 let add local_store (Local n) default_value =
-  let locals = IntMap.add n default_value local_store.locals in
+  let locals = Map.add n default_value local_store.locals in
   let count = max local_store.count n in
-  { local_store with locals; count }
+  { local_store with locals = locals; count = count }
 
 let create_default_locals story routine_address =
   let count = Routine.locals_count story routine_address in
@@ -85,7 +86,7 @@ let create_default_locals story routine_address =
       let default_value = Routine.local_default_value story routine_address i in
       let new_store = add acc (Local i) default_value in
       aux new_store (i + 1) in
-aux empty 1
+  aux empty 1
 
 let write_arguments local_store arguments =
   let rec aux acc args i =
