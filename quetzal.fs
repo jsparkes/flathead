@@ -90,10 +90,10 @@ let save
 let read_ifzd_chunks ifzd =
   match ifzd with
   | Record [
-      Header "FORM";
-      Length _;
-      SubHeader "IFZS";
-      UnorderedList items] ->
+              Header "FORM";
+              Length _;
+              SubHeader "IFZS";
+              UnorderedList items] ->
       items
   | _ -> failwith "TODO: Handle failure reading ifzd"
 
@@ -101,13 +101,13 @@ let read_header ifzd =
   let chunks = read_ifzd_chunks ifzd in
   let ifhd = find_record chunks "IFhd" in
   match ifhd with
-  | Some Record [
-      Header "IFhd";
-      Length _;
-      Integer16 Some release_number;
-      ByteString (Some serial_number, 6);
-      Integer16 Some checksum;
-      Integer24 Some pc ] ->
+  | Some (Record [
+                  Header "IFhd";
+                  Length _;
+                  Integer16 (Some release_number);
+                  ByteString (Some serial_number, 6);
+                  Integer16 (Some checksum);
+                  Integer24 (Some pc) ]) ->
     ((Release_number release_number), (Serial_number serial_number), (Checksum checksum), pc)
   | _ -> failwith "TODO handle failure reading ifhd"
 
@@ -115,10 +115,10 @@ let read_stacks ifzd =
   let chunks = read_ifzd_chunks ifzd in
   let stacks_chunk = find_record chunks "Stks" in
   match stacks_chunk with
-  | Some Record [
-      Header "Stks";
-      Length _;
-      UnsizedList items ] -> items
+  | Some (Record [
+                  Header "Stks";
+                  Length _;
+                  UnsizedList items ]) -> items
   | _ -> failwith "TODO handle failure reading stacks"
 
 let read_memory ifzd =
@@ -126,19 +126,19 @@ let read_memory ifzd =
   let cmem_chunk = find_record chunks "CMem" in
   let umem_chunk = find_record chunks "UMem" in
   let compressed = match cmem_chunk with
-    | None -> None
-    | Some Record [
-        Header "CMem";
-        Length Some length;
-        RemainingBytes Some bytes] ->
-      Some (Compressed bytes)
-    | _ -> failwith "TODO: Handle failure reading CMem" in
+                    | None -> None
+                    | Some (Record [
+                                    Header "CMem";
+                                    Length (Some length);
+                                    RemainingBytes (Some bytes)]) ->
+                      Some (Compressed bytes)
+                    | _ -> failwith "TODO: Handle failure reading CMem" in
   let uncompressed = match umem_chunk with
-    | None -> None
-    | Some Record [
-        Header "UMem";
-        Length Some length;
-        RemainingBytes Some bytes] ->
-      Some (Uncompressed bytes)
-    | _ -> failwith "TODO: Handle failure reading UMem" in
+                        | None -> None
+                        | Some (Record [
+                                        Header "UMem";
+                                        Length (Some length);
+                                        RemainingBytes (Some bytes)]) ->
+                          Some (Uncompressed bytes)
+                        | _ -> failwith "TODO: Handle failure reading UMem" in
   (compressed, uncompressed)
