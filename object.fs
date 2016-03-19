@@ -25,15 +25,15 @@ let default_property_table_size story =
 let default_property_table_entry_size = 2
 
 let default_property_table_base story =
-  let (Object_base base)= Story.object_table_base story in
-  Property_defaults_table base
+  let (Object_base baase)= Story.object_table_base story in
+  Property_defaults_table baase
 
 let default_property_value story (Property n) =
   if n < 1 || n > (default_property_table_size story) then
     failwith "invalid index into default property table"
   else
-    let (Property_defaults_table base) = default_property_table_base story in
-    let addr = Word_address ((base + (n - 1) * default_property_table_entry_size)) in
+    let (Property_defaults_table baase) = default_property_table_base story in
+    let addr = Word_address ((baase + (n - 1) * default_property_table_entry_size)) in
     Story.read_word story addr
 
 (* A debugging method for looking at the default property table *)
@@ -44,9 +44,9 @@ let display_default_property_table story =
   accumulate_strings_loop to_string 1 ((default_property_table_size story) + 1)
 
 let tree_base story =
-  let (Object_base base) = Story.object_table_base story in
+  let (Object_base baase) = Story.object_table_base story in
   let table_size = default_property_table_size story in
-  Object_tree_base (base + default_property_table_entry_size * table_size)
+  Object_tree_base (baase + default_property_table_entry_size * table_size)
 
 let entry_size story =
   if Story.v3_or_lower (Story.version story) then 9 else 14
@@ -59,7 +59,7 @@ let address story (Object obj) =
 let attributes_word_1 story obj =
   let (Object_address addr) = address story obj in
   Story.read_word story (Word_address addr)
-
+  
 let attributes_word_2 story obj =
   let attributes2_offset = 2 in
   let (Object_address addr) = address story obj in
@@ -356,7 +356,7 @@ let display_properties story obj =
         Printf.sprintf ":%04x " prop_value
       else
         " " in
-    prop_number_text ^ prop_value_text in
+    prop_number_text + prop_value_text in
   let addresses = property_addresses story obj in
   accumulate_strings to_string addresses
 
@@ -372,10 +372,9 @@ let display_object_table story =
     let (Object child) = child story current in
     let name = name story current in
     let object_text =
-      Printf.sprintf "%04d: %04x%04x%04x %04x %04x %04x %s "
-      i flags1 flags2 flags3 parent sibling child name in
+      Printf.sprintf "%04d: %04x%04x%04x %04x %04x %04x %s " i flags1 flags2 flags3 parent sibling child name in
     let properties_text = display_properties story current in
-    object_text ^ properties_text ^ "\n" in
+    object_text ^ properties_text + "\n" in
   accumulate_strings_loop to_string 1 (count + 1)
 
 (* Count down all the objects in the object table and record which ones have no parent. *)
@@ -401,8 +400,8 @@ let display_object_tree story =
       let (Object n) = obj in
       let object_text =
         Printf.sprintf "%s%04d %s\n" indent n name in
-      let with_object = acc ^ object_text in
-      let new_indent = "    " ^ indent in
+      let with_object = acc + object_text in
+      let new_indent = "    " + indent in
       let with_children = aux with_object new_indent child in
       aux with_children indent sibling in
   let to_string obj =
