@@ -3,6 +3,10 @@ module Interpreter
 open Utility
 open Iff
 open Quetzal
+open Randomness
+open Instruction
+open Object
+open Tokeniser
 open Type
 
 type interpreter_state =
@@ -18,37 +22,37 @@ type output_stream_kind =
 
 (* The state of the interpreter *)
 type t =
-{
-  story : Story.t;
-  program_counter : instruction_address;
-  frames : Frameset.t;
-  random : Randomness.t;
-  state : interpreter_state;
+    {
+      story : Story.t;
+      program_counter : instruction_address;
+      frames : Frameset.t;
+      random : Randomness.t;
+      state : interpreter_state;
 
-  (* output stream 1 *)
-  screen : Screen.t;
-  has_new_output : bool;
-  screen_selected : bool;
+      (* output stream 1 *)
+      screen : Screen.t;
+      has_new_output : bool;
+      screen_selected : bool;
 
-  (* output stream 2 *)
-  transcript : Transcript.t;
-  transcript_selected : transcript_enabled;
+      (* output stream 2 *)
+      transcript : Transcript.t;
+      transcript_selected : transcript_enabled;
 
-  memory_table : word_prefixed list;
-  memory_selected : bool;
+      memory_table : word_prefixed list;
+      memory_selected : bool;
 
-  (* output stream 4 *)
-  commands : string list;
-  commands_selected : bool;
+      (* output stream 4 *)
+      commands : string list;
+      commands_selected : bool;
 
-  (* TODO: Other input streams *)
+      (* TODO: Other input streams *)
 
-  (* TODO: What are the types of these addresses? *)
-  text_address : input_buffer;
-  parse_address : parse_buffer;
-  input : string;
-  input_max : int;
-}
+      (* TODO: What are the types of these addresses? *)
+      text_address : input_buffer;
+      parse_address : parse_buffer;
+      input : string;
+      input_max : int;
+    }
 
 let make story screen =
   (* TODO: Restore these after a restart / restore *)
@@ -121,7 +125,7 @@ let pop_stack interpreter =
   { interpreter with frames = Frameset.pop_stack interpreter.frames }
 
 let push_stack interpreter value =
-{ interpreter with frames = Frameset.push_stack interpreter.frames value }
+  { interpreter with frames = Frameset.push_stack interpreter.frames value }
 
 let program_counter interpreter =
   interpreter.program_counter
@@ -135,35 +139,35 @@ let read_local interpreter local =
 let write_local interpreter local value =
   { interpreter with frames = Frameset.write_local interpreter.frames local value }
 
-let read_global interpreter global =
-  Globals.read interpreter.story global
+let read_global interpreter globall =
+  Globals.read interpreter.story globall
 
-let write_global interpreter global value =
-  { interpreter with story = Globals.write interpreter.story global value }
+let write_global interpreter globall value =
+  { interpreter with story = Globals.write interpreter.story globall value }
   
 let read_variable_in_place interpreter variable =
   match variable with
   | Stack -> peek_stack interpreter
   | Local_variable local -> read_local interpreter local
-  | Global_variable global -> read_global interpreter global
+  | Global_variable globall -> read_global interpreter globall
 
 let read_variable interpreter variable =
   match variable with
   | Stack -> (peek_stack interpreter, pop_stack interpreter)
   | Local_variable local -> (read_local interpreter local, interpreter)
-  | Global_variable global -> (read_global interpreter global, interpreter)
+  | Global_variable globall -> (read_global interpreter globall, interpreter)
   
 let write_variable_in_place interpreter variable value =
   match variable with
   | Stack -> push_stack (pop_stack interpreter) value
   | Local_variable local -> write_local interpreter local value
-  | Global_variable global -> write_global interpreter global value
+  | Global_variable globall -> write_global interpreter globall value
 
 let write_variable interpreter variable value =
   match variable with
   | Stack -> push_stack interpreter value
   | Local_variable local -> write_local interpreter local value
-  | Global_variable global -> write_global interpreter global value
+  | Global_variable globall -> write_global interpreter globall value
 
 let read_operand interpreter operand =
   match operand with
@@ -237,7 +241,7 @@ let split_window interpreter lines=
 let set_status_line interpreter =
   let status = Status_line.make interpreter.story in
   let screen = Screen.set_status interpreter.screen status in
-  { interpreter with has_new_output = true; screen }
+  { interpreter with has_new_output = true; screen = screen }
 
 let display_current_instruction interpreter =
   let address = interpreter.program_counter in
@@ -256,15 +260,15 @@ let select_output_stream interpreter stream value =
   | TranscriptStream ->
     let value = Transcript_enabled value in
     { interpreter with
-    transcript_selected = value;
-    story = Story.set_transcript_enabled interpreter.story value }
+                   transcript_selected = value;
+                   story = Story.set_transcript_enabled interpreter.story value }
   | MemoryStream -> failwith "use select/deselect memory stream"
   | CommandStream -> { interpreter with commands_selected = value };;
 
 let select_memory_stream interpreter table =
   { interpreter with
-    memory_selected = true;
-    memory_table = table :: interpreter.memory_table }
+                memory_selected = true;
+                memory_table = table :: interpreter.memory_table }
 
 let deselect_memory_stream interpreter =
   match interpreter.memory_table with
@@ -769,8 +773,8 @@ let handle_rfalse interpreter instruction =
 
 let handle_print interpreter instruction =
   let printed_interpreter = match Instruction.text instruction with
-  | Some text -> print interpreter text
-  | None -> interpreter in
+                              | Some text -> print interpreter text
+                              | None -> interpreter in
   interpret_branch printed_interpreter instruction 0
 
 (* Spec: 0OP:179 print_ret
@@ -780,7 +784,7 @@ let handle_print interpreter instruction =
 let handle_print_ret interpreter instruction =
   let printed_interpreter =
     match Instruction.text instruction with
-    | Some text -> print interpreter (text ^ "\n")
+    | Some text -> print interpreter (text + "\n")
     | None -> interpreter in
   interpret_return printed_interpreter 1
 
@@ -892,12 +896,12 @@ let handle_restore interpreter instruction =
     on here. *)
   let save_pc = Instruction (program_counter - 1) in
   let save_instruction = Instruction.decode new_story save_pc in
-  if (Instruction.opcode save_instruction) != OP0_181 then
+  if (Instruction.opcode save_instruction) <> OP0_181 then
     failwith "Restored PC is not on save instruction";
   let new_interpreter = { interpreter with
-    story = new_story;
-    program_counter = save_pc;
-    frames } in
+                                        story = new_story;
+                                        program_counter = save_pc;
+                                        frames = frames } in
   (* TODO: All the bits that have to be preserved. Make a common helper
   method with restart. *)
   (* After a restore, redraw the status line *)
@@ -930,7 +934,7 @@ let handle_restart interpreter instruction =
   let story = Story.original interpreter.story in
   let original = make story interpreter.screen in
   let restarted_interpreter = select_output_stream original TranscriptStream transcript_on in
-  { restarted_interpreter with transcript; commands }
+  { restarted_interpreter with transcript = transcript; commands = commands }
 
 (* Spec:0OP:184 ret_popped
   Pops top of stack and returns that. (This is equivalent to ret sp, but
@@ -1126,11 +1130,11 @@ let handle_sread4 text parse time routine interpreter instruction =
   should notice and redraw the input line so far, before input continues. *)
   handle_sread2 text parse interpreter instruction
 
-let complete_sread (Input_buffer text_addr) parse_addr input interpreter instruction =
+let complete_sread (Input_buffer text_addr) parse_addr (input : string) interpreter instruction =
   (* Spec: The text typed is reduced to lower case *)
   (* Note: it is not clear from reading the spec whether this applies just
   to versions 1-4, or all versions. Let's assume all. *)
-  let text = String.lowercase input in
+  let text = input.ToLower() in
   let story = interpreter.story in
   (* TODO: Could use some helper methods on input buffers here and in tokeniser.*)
   let maximum_letters = Story.read_byte story (Byte_address text_addr) in
@@ -1146,12 +1150,12 @@ let complete_sread (Input_buffer text_addr) parse_addr input interpreter instruc
     if parse_addr = Parse_buffer 0 then story
     else Tokeniser.lexical_analysis story parse_addr trimmed in
   let interpreter = { interpreter with state = Running } in
-  let interpreter = { interpreter with story } in
+  let interpreter = { interpreter with story = story } in
   let interpreter = write_command interpreter input in
     (* Spec: If input was terminated in the usual way, by the player typing a carriage return, then a carriage
     return is printed (so the cursor moves to the next line). If it was interrupted, the cursor is left at
     the rightmost end of the text typed in so far.*)
-  let interpreter = print interpreter (input ^ "\n") in
+  let interpreter = print interpreter (input + "\n") in
   let interpreter = { interpreter with screen = Screen.fully_scroll interpreter.screen } in
   (* Spec:  In Version 5 and later, this is a store instruction: the return
     value is the terminating character (note that the user pressing his "enter"
@@ -1196,7 +1200,7 @@ let handle_random n interpreter =
     (0, { interpreter with random = Randomness.make_seeded n })
   else
     let (result, random) = Randomness.next interpreter.random n in
-    (result, { interpreter with random })
+    (result, { interpreter with random = random})
 
 (* Spec: VAR:232 push value
 Pushes value onto the game stack. *)
@@ -1333,7 +1337,7 @@ let handle_get_cursor arr interpreter =
   let Cursor ((Character_x x),( Character_y y)) = Screen.get_active_cursor interpreter.screen in
   let story = Story.write_word interpreter.story arr y in
   let story = Story.write_word story (inc_word_addr arr) x in
-  { interpreter with story }
+  { interpreter with story = story }
 
 (* Spec: VAR:241 set_text_style style
   Sets the text style to: Roman (if 0), Reverse Video (if 1),
@@ -1829,10 +1833,10 @@ let step_with_input interpreter key =
       { interpreter with input = truncate interpreter.input (length - 1)} in
   let opcode = Instruction.opcode instruction in
   match opcode with
-  | VAR_246 -> complete_read_char interpreter instruction key
-  | VAR_228 ->
-    if key_text = "\r" then handle_enter()
-    else if key_text = "\b" then handle_backspace()
-    else if length >= interpreter.input_max then interpreter
-    else { interpreter with input = interpreter.input ^ key_text }
-  | _ -> failwith "not waiting for input"
+      | VAR_246 -> complete_read_char interpreter instruction key
+      | VAR_228 ->
+        if key_text = "\r" then handle_enter()
+        else if key_text = "\b" then handle_backspace()
+        else if length >= interpreter.input_max then interpreter
+        else { interpreter with input = interpreter.input + key_text }
+      | _ -> failwith "not waiting for input"

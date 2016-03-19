@@ -23,6 +23,8 @@ let int_of_char c = int c
 
 type List<'a> with
   static member fold_left a b c = List.fold a b c
+  static member hd l = List.head l
+  static member tl l = List.tail l
 
 // ==========
 

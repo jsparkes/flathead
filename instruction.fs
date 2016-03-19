@@ -24,15 +24,15 @@ let decode_variable n =
 let encode_variable variable =
   match variable with
   | Stack -> 0
-  | Local_variable Local n -> n
-  | Global_variable Global n -> n
+  | Local_variable (Local n) -> n
+  | Global_variable (Global n) -> n
 
 (* We match Inform's convention of numbering the locals and globals from zero *)
 let display_variable variable =
   match variable with
   | Stack -> "sp"
-  | Local_variable Local local -> Printf.sprintf "local%d" (local - 1)
-  | Global_variable Global global -> Printf.sprintf "g%02x" (global - 16)
+  | Local_variable (Local local) -> Printf.sprintf "local%d" (local - 1)
+  | Global_variable (Global globall) -> Printf.sprintf "g%02x" (globall - 16)
 
 type operand_type =
   | Large_operand
@@ -70,15 +70,15 @@ let ext_bytecodes = [|
   EXT_24;  EXT_25;  EXT_26;  EXT_27;  EXT_28;  EXT_29;  ILLEGAL; ILLEGAL |]
 
 type t =
-{
-  opcode : bytecode;
-  address : instruction_address;
-  length : int;
-  operands : operand list;
-  store : variable_location option;
-  branch : (bool * branch_address) option;
-  text : string option;
-}
+    {
+      opcode : bytecode;
+      address : instruction_address;
+      length : int;
+      operands : operand list;
+      store : variable_location option;
+      branch : (bool * branch_address) option;
+      text : string option;
+    }
 
 let address instruction =
   instruction.address
@@ -318,15 +318,15 @@ let opcode_name opcode ver =
   
 let display_indirect_operand operand = 
   match operand with
-  | Large large -> (display_variable (decode_variable large)) ^ " "
-  | Small small -> (display_variable (decode_variable small)) ^ " "
-  | Variable variable -> "[" ^ (display_variable variable) ^ "] " 
+  | Large large -> (display_variable (decode_variable large)) + " "
+  | Small small -> (display_variable (decode_variable small)) + " "
+  | Variable variable -> "[" + (display_variable variable) + "] " 
 
 let display_operand operand =
   match operand with
   | Large large -> Printf.sprintf "%04x " large
   | Small small -> Printf.sprintf "%02x " small
-  | Variable variable -> (display_variable variable) ^ " " 
+  | Variable variable -> (display_variable variable) + " " 
   
 let display_jump instr =
   (* For jumps, display the absolute target rather than the relative target. *)
@@ -342,13 +342,13 @@ let display_call instr story =
     | Some (Routine addr) ->
       let routine = (Printf.sprintf "%04x " addr) in
       let args = accumulate_strings display_operand (List.tl instr.operands) in
-      routine ^ args
+      routine + args
     | _ -> accumulate_strings display_operand instr.operands
     
 let display_indirect_operands operands =
   let var = display_indirect_operand (List.hd operands) in
   let rest = accumulate_strings display_operand (List.tl operands) in
-  var ^ rest 
+  var + rest 
    
 let display instr story =
   let ver = Story.version story in
@@ -362,7 +362,7 @@ let display instr story =
   let display_store () =
     match instr.store with
     | None -> ""
-    | Some variable -> "->" ^ (display_variable variable) in
+    | Some variable -> "->" + (display_variable variable) in
 
   let display_branch () =
     match instr.branch with
@@ -371,8 +371,8 @@ let display instr story =
     | Some (false, Return_false) -> "?~false"
     | Some (true, Return_true) -> "?true"
     | Some (false, Return_true) -> "?~true"
-    | Some (true, Branch_address Instruction address) -> Printf.sprintf "?%04x" address
-    | Some (false, Branch_address Instruction address) -> Printf.sprintf "?~%04x" address in
+    | Some (true, Branch_address (Instruction address)) -> Printf.sprintf "?%04x" address
+    | Some (false, Branch_address (Instruction address)) -> Printf.sprintf "?~%04x" address in
 
   let display_text () =
     match instr.text with
@@ -460,11 +460,11 @@ let decode story (Instruction address) =
     | (Extended_form, _) ->
       let maximum_extended = 29 in
       let ext = read_byte (inc_byte_addr address) in
-      if ext > maximum_extended then ILLEGAL else ext_bytecodes.(ext)
-    | (_, OP0) -> zero_operand_bytecodes.(fetch_bits bit3 size4 b)
-    | (_, OP1) -> one_operand_bytecodes.(fetch_bits bit3 size4 b)
-    | (_, OP2) -> two_operand_bytecodes.(fetch_bits bit4 size5 b)
-    | (_, VAR) -> var_operand_bytecodes.(fetch_bits bit4 size5 b) in
+      if ext > maximum_extended then ILLEGAL else ext_bytecodes.[ext]
+    | (_, OP0) -> zero_operand_bytecodes.[fetch_bits bit3 size4 b]
+    | (_, OP1) -> one_operand_bytecodes.[fetch_bits bit3 size4 b]
+    | (_, OP2) -> two_operand_bytecodes.[fetch_bits bit4 size5 b]
+    | (_, VAR) -> var_operand_bytecodes.[fetch_bits bit4 size5 b] in
 
   let get_opcode_length form =
     match form with
@@ -691,4 +691,4 @@ let decode story (Instruction address) =
     opcode_length + type_length + operand_length + store_length +
     branch_length + text_length in
   let address = Instruction address in
-  { opcode; address; length; operands; store; branch; text }
+  { opcode = opcode; address = address; length = length; operands = operands; store = store; branch = branch; text = text }

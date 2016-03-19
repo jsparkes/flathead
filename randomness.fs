@@ -2,6 +2,8 @@ module Randomness
 
 (* See wikipedia article on xorshift *)
 
+type t = System.Random
+
 //type t =
 //    {
 //      w : Int32.t;
@@ -26,7 +28,7 @@ let next (r : System.Random) n =
 //  let w = xor (xor (xor r.w (sr r.w 19)) t) (sr t 8) in
 //  let r = 1 + ((to_int (rem w (of_int n)) + n) mod n) in
 //  (r, { w; x; y; z })
-    r.Next(1, n)
+    r.Next(1, n), r
 
 let make_seeded seed =
   //let of_int = Int32.of_int in

@@ -67,17 +67,17 @@
     <Compile Include="frame.fs" />
     <Compile Include="frameset.fs" />
     <Compile Include="globals.fs" />
+    <Compile Include="randomness.fs" />
+    <Compile Include="transcript.fs" />
     <Compile Include="instruction.fs" />
+    <Compile Include="quetzal.fs" />
+    <Compile Include="tokeniser.fs" />
+    <Compile Include="object.fs" />
     <Compile Include="interpreter.fs" />
     <Compile Include="my_graphics.fs" />
-    <Compile Include="object.fs" />
-    <Compile Include="quetzal.fs" />
-    <Compile Include="randomness.fs" />
     <Compile Include="reachability.fs" />
     <Compile Include="screen.fs" />
     <Compile Include="status_line.fs" />
-    <Compile Include="tokeniser.fs" />
-    <Compile Include="transcript.fs" />
     <Compile Include="window.fs" />
   </ItemGroup>
   <PropertyGroup>
