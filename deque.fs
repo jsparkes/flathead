@@ -1,11 +1,17 @@
+module Deque
+
 (* Simplified version of Chris Okasaki's deque. *)
 type 'a t =
-{
-  front : 'a list;
-  front_length : int;
-  back : 'a list;
-  back_length : int
-}
+    {
+      front : 'a list;
+      front_length : int;
+      back : 'a list;
+      back_length : int
+    }
+
+/// Alias for OCaml function
+///type List<'a> with
+///    static member nth l n = List.item n l
 
 (* Invariants: front_length and back_length are the lengths of the lists *)
 (* Invariants: front_length <= c * back_length + 1 *)
@@ -15,12 +21,12 @@ exception Empty
 exception InvalidIndex
 
 let empty =
-{
-  front = [];
-  front_length = 0;
-  back = [];
-  back_length = 0
-}
+    {
+      front = [];
+      front_length = 0;
+      back = [];
+      back_length = 0
+    }
 
 let is_empty deque =
   deque.front_length + deque.back_length = 0
@@ -66,13 +72,13 @@ let balance deque =
 
 let enqueue_front deque item =
   balance { deque with
-    front = item :: deque.front;
-    front_length = deque.front_length + 1}
+                front = item :: deque.front;
+                front_length = deque.front_length + 1}
 
 let enqueue_back deque item =
   balance { deque with
-    back = item :: deque.back;
-    back_length = deque.back_length + 1}
+                back = item :: deque.back;
+                back_length = deque.back_length + 1}
 
 let peek_front deque =
   match deque with

@@ -50,11 +50,11 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="type.fs" />
     <Compile Include="utility.fs" />
+    <Compile Include="deque.fs" />
     <None Include="App.config" />
     <Compile Include="button.fs" />
     <Compile Include="compression.fs" />
     <Compile Include="debugger.fs" />
-    <Compile Include="deque.fs" />
     <Compile Include="dictionary.fs" />
     <Compile Include="evaluation_stack.fs" />
     <Compile Include="flathead.fs" />
