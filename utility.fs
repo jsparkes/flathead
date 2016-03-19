@@ -16,6 +16,12 @@ let string_of_char (x : char) =
 let string_of_byte (b : int) =
   string_of_char (char b)
 
+let char_of_int n =
+  char n
+
+let int_of_char (c : char) =
+  int c
+
 let truncate text length =
   if (String.length text) > length then text.Substring(0, length)
   else text
@@ -238,3 +244,17 @@ let address_of_low_byte (Word_address address) =
 
 let byte_addr_to_word_addr (Byte_address address) =
   Word_address address
+
+type List<'a> with
+  static member fold_left a b c = List.fold a b c
+
+let (mod) a b = a % b
+
+let (land) a b = a &&& b
+let (lor) a b = a ||| b
+
+let (lsl) a b = a <<< b
+let (lsr) a b = a >>> b
+
+// Is this correct?
+let (asr) a b = a >>> b

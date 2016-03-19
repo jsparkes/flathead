@@ -1,3 +1,5 @@
+module Iff
+
 open Utility
 
 type iff_contents =
@@ -55,7 +57,7 @@ let read_iff_file filename root_form =
 
     let read_string_from_file offset length =
       if offset + length > end_position then raise BadFileFormat
-      else String.sub file offset length in
+      else file.Substring(offset, length) in
 
     let read_int8_from_file offset =
       if offset >= end_position then raise BadFileFormat
@@ -132,13 +134,13 @@ let read_iff_file filename root_form =
         match forms with
         | (Header _) :: (Length _) :: tail ->
           let (_, length) = peek_chunk offset in
-          (offset + 8 + length, length mod 2 != 0)
+          (offset + 8 + length, length mod 2 <> 0)
         | _ -> (end_position, false) in
-      let process acc form =
+      let processs acc form =
         let (acc_context, current_offset, acc_results) = acc in
         let (new_result, new_offset) = read_form current_offset form new_end_position acc_context in
         (new_result :: acc_context, new_offset, new_result :: acc_results) in
-      let (_, new_offset, results) = List.fold_left process (context, offset, []) forms in
+      let (_, new_offset, results) = List.fold_left processs (context, offset, []) forms in
         (* If a record has an odd length then there will always be
         an extra 0 byte unaccounted for at the end. Skip it. *)
       let adjusted = if skip_byte then new_offset + 1 else new_offset in
@@ -178,8 +180,8 @@ let read_iff_file filename root_form =
           else
             let (new_form, new_offset) = read_form current_offset form end_position context in
             aux (new_form :: acc) (i - 1) new_offset in
-      let (new_forms, new_offset) = aux [] n offset in
-      (SizedList (s, List.rev new_forms), new_offset)
+          let (new_forms, new_offset) = aux [] n offset in
+          (SizedList (s, List.rev new_forms), new_offset)
       | _ -> failwith "unexpected pattern in sized list" in
 
     let read_unordered_list forms =
@@ -240,18 +242,18 @@ let write_iff_file filename root_form =
       let b1 = string_of_char (char_of_int ((n asr 8 ) land 0xff)) in
       let b2 = string_of_char (char_of_int ((n asr 16) land 0xff)) in
       let b3 = string_of_char (char_of_int ((n asr 24) land 0xff)) in
-      b3 ^ b2 ^ b1 ^ b0 in
+      b3 + b2 + b1 + b0 in
 
     let write_int24_to_file n =
       let b0 = string_of_char (char_of_int (n land 0xff)) in
       let b1 = string_of_char (char_of_int ((n asr 8 ) land 0xff)) in
       let b2 = string_of_char (char_of_int ((n asr 16) land 0xff)) in
-      b2 ^ b1 ^ b0 in
+      b2 + b1 + b0 in
 
     let write_int16_to_file n =
       let b0 = string_of_char (char_of_int (n land 0xff)) in
       let b1 = string_of_char (char_of_int ((n asr 8 ) land 0xff)) in
-      b1 ^ b0 in
+      b1 + b0 in
 
     let write_int8_to_file n =
       string_of_char (char_of_int (n land 0xff)) in
@@ -269,15 +271,15 @@ let write_iff_file filename root_form =
       string_of_char (char_of_int v) in
 
     let write_many s form =
-      s ^ (write_form form) in
+      s + (write_form form) in
 
     let write_record forms =
       match forms with
       | (Header header) :: (Length _) :: tail ->
         let body = List.fold_left write_many "" tail in
         let length = String.length body in
-        let chunk = header ^ (write_int32_to_file length) ^ body in
-        let adjusted = if length mod 2 = 0 then chunk else chunk ^ "\000" in
+        let chunk = header + (write_int32_to_file length) + body in
+        let adjusted = if length mod 2 = 0 then chunk else chunk + "\000" in
         adjusted
       | _ -> List.fold_left write_many "" forms in
 
