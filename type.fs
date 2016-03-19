@@ -1,3 +1,5 @@
+module Type
+
 type byte_address = Byte_address of int
 type word_address = Word_address of int
 type input_buffer = Input_buffer of int
@@ -128,7 +130,7 @@ type scroll_pending =
 
 
 type bytecode =
-            | OP2_1   | OP2_2   | OP2_3   | OP2_4   | OP2_5   | OP2_6   | OP2_7
+  | OP2_1   | OP2_2   | OP2_3   | OP2_4   | OP2_5   | OP2_6   | OP2_7
   | OP2_8   | OP2_9   | OP2_10  | OP2_11  | OP2_12  | OP2_13  | OP2_14  | OP2_15
   | OP2_16  | OP2_17  | OP2_18  | OP2_19  | OP2_20  | OP2_21  | OP2_22  | OP2_23
   | OP2_24  | OP2_25  | OP2_26  | OP2_27  | OP2_28

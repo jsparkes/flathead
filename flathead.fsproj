@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="type.fs" />
     <None Include="App.config" />
     <Compile Include="button.fs" />
     <Compile Include="compression.fs" />
@@ -75,7 +76,6 @@
     <Compile Include="story.fs" />
     <Compile Include="tokeniser.fs" />
     <Compile Include="transcript.fs" />
-    <Compile Include="type.fs" />
     <Compile Include="utility.fs" />
     <Compile Include="window.fs" />
     <Compile Include="zstring.fs" />
