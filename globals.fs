@@ -1,3 +1,5 @@
+module Globals
+
 open Utility
 open Type
 

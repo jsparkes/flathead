@@ -1,3 +1,5 @@
+module Zstring
+
 open Utility
 open Type
 

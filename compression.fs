@@ -1,3 +1,5 @@
+module Compression 
+
 open Type
 open Utility
 

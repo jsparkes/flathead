@@ -1,3 +1,5 @@
+module Local_store
+
 (* The local variables store knows
 * Which locals were supplied from arguments
 * How many locals there are

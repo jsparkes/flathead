@@ -1,3 +1,5 @@
+module Dictionary
+
 open Utility
 open Type
 

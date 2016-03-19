@@ -1,3 +1,5 @@
+module My_graphics
+
 open Type;;
 
 Graphics.open_graph "";;

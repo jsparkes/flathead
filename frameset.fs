@@ -1,3 +1,5 @@
+module Frameset
+
 (* The frame set is the stack of activation frames; each activation frame
 has a local variable storage, evaluation stack, and information about
 the call site that created this activation. *)

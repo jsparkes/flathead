@@ -1,3 +1,5 @@
+module Randomness
+
 (* See wikipedia article on xorshift *)
 
 type t =
