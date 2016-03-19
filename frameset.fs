@@ -5,13 +5,13 @@ has a local variable storage, evaluation stack, and information about
 the call site that created this activation. *)
 
 type t =
-{
-  initial_frame : Frame.t;
-  frames : Frame.t list
-}
+    {
+      initial_frame : Frame.t;
+      frames : Frame.t list
+    }
 
 let make initial_frame =
-  { initial_frame ; frames = []}
+  { initial_frame = initial_frame ; frames = []}
 
 let current_frame frameset =
   match frameset.frames with

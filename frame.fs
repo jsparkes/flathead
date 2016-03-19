@@ -3,24 +3,27 @@ module Frame
 open Utility
 open Iff
 open Type
+open Routine
+open Evaluation_stack
+open Local_store
 
 type t =
-{
-  stack : Evaluation_stack.t;
-  local_store : Local_store.t;
-  called : instruction_address;
-  resume_at : instruction_address;
-  store : variable_location option
-}
+    {
+      stack : Evaluation_stack.t;
+      local_store : Local_store.t;
+      called : instruction_address;
+      resume_at : instruction_address;
+      store : variable_location option
+    }
 
 let make pc =
-{
-  stack = Evaluation_stack.empty;
-  local_store = Local_store.empty;
-  called = pc;
-  resume_at = Instruction 0;
-  store = None
-}
+    {
+      stack = Evaluation_stack.empty;
+      local_store = Local_store.empty;
+      called = pc;
+      resume_at = Instruction 0;
+      store = None
+    }
 
 let make_call_frame story arguments routine_address resume_at store =
   let default_store = Local_store.create_default_locals story routine_address in
@@ -28,10 +31,10 @@ let make_call_frame story arguments routine_address resume_at store =
   let called = Routine.first_instruction story routine_address in
   {
     stack = Evaluation_stack.empty;
-    local_store;
-    called;
-    resume_at;
-    store
+    local_store = local_store;
+    called = called;
+    resume_at = resume_at;
+    store = store
   }
 
 let called frame =
@@ -79,8 +82,8 @@ let make_frame_record frame =
     match frame.store with
     | None -> (true, 0)
     | Some Stack -> (false, 0)
-    | Some Local_variable Local n -> (false, n)
-    | Some Global_variable Global n -> (false, n) in
+    | Some (Local_variable (Local n)) -> (false, n)
+    | Some (Global_variable (Global n)) -> (false, n) in
 
 (* TODO: Bit_number could take a bit number, not an integer *)
   Record [
@@ -103,45 +106,45 @@ let make_frame_record frame =
 
 let make_frame_from_record frame_record =
   let (ret_addr, locals_list, eval_stack,
-      store, arg_count, locals_count) =
+        store, arg_count, locals_count) =
     match frame_record with
     | Record [
-      Integer24 (Some ret_addr);
-      BitField [
-        Integer4 (Some locals_count);
-        Bit (4, Some discard_value)];
-      Integer8 (Some target_variable);
-      BitField [
-        Bit (0, Some a0);
-        Bit (1, Some a1);
-        Bit (2, Some a2);
-        Bit (3, Some a3);
-        Bit (4, Some a4);
-        Bit (5, Some a5);
-        Bit (6, Some a6)];
-      Integer16 (Some _); (* size of evaluation stack in words *)
-      SizedList (_, locals_list);
-      SizedList (_, eval_stack)] ->
-      let rec find_false n items =
-        match items with
-        | false :: _ -> n
-        | true :: tail -> find_false (n + 1) tail
-        | [] -> failwith "impossible" in
-      let arg_count =
-        find_false 0 [a0; a1; a2; a3; a4; a5; a6; false] in
-      let store = (* TODO: Use decode_variable *)
-        match (discard_value, target_variable) with
-        | (true, _) -> None
-        | (false, n) -> Some (Instruction.decode_variable n) in
+              Integer24 (Some ret_addr);
+              BitField [
+                Integer4 (Some locals_count);
+                Bit (4, Some discard_value)];
+              Integer8 (Some target_variable);
+              BitField [
+                Bit (0, Some a0);
+                Bit (1, Some a1);
+                Bit (2, Some a2);
+                Bit (3, Some a3);
+                Bit (4, Some a4);
+                Bit (5, Some a5);
+                Bit (6, Some a6)];
+              Integer16 (Some _); (* size of evaluation stack in words *)
+              SizedList (_, locals_list);
+              SizedList (_, eval_stack)] ->
+              let rec find_false n items =
+                match items with
+                | false :: _ -> n
+                | true :: tail -> find_false (n + 1) tail
+                | [] -> failwith "impossible" in
+              let arg_count =
+                find_false 0 [a0; a1; a2; a3; a4; a5; a6; false] in
+              let store = (* TODO: Use decode_variable *)
+                match (discard_value, target_variable) with
+                | (true, _) -> None
+                | (false, n) -> Some (Instruction.decode_variable n) in
 
-      (Instruction ret_addr, locals_list, eval_stack,
-        store, arg_count, locals_count)
+              (Instruction ret_addr, locals_list, eval_stack,
+                store, arg_count, locals_count)
     | _ -> failwith "TODO handle failure reading frame" in
   let stack = Evaluation_stack.make_stack_from_record eval_stack in
   let local_store = Local_store.make_locals_from_record arg_count locals_list in
-  { stack;
-    local_store;
-    called = Instruction 0;
-    resume_at = ret_addr ;
-    store
-    }
+      { stack = stack;
+        local_store = local_store;
+        called = Instruction 0;
+        resume_at = ret_addr ;
+        store = store
+        }

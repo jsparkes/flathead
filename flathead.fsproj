@@ -60,6 +60,7 @@
     <Compile Include="story.fs" />
     <Compile Include="zstring.fs" />
     <Compile Include="dictionary.fs" />
+    <Compile Include="routine.fs" />
     <Compile Include="local_store.fs" />
     <Compile Include="evaluation_stack.fs" />
     <Compile Include="flathead.fs" />
@@ -73,7 +74,6 @@
     <Compile Include="quetzal.fs" />
     <Compile Include="randomness.fs" />
     <Compile Include="reachability.fs" />
-    <Compile Include="routine.fs" />
     <Compile Include="screen.fs" />
     <Compile Include="status_line.fs" />
     <Compile Include="tokeniser.fs" />

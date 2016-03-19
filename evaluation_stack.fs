@@ -4,9 +4,9 @@ open Utility
 open Iff
 
 type t =
-{
-  items : int list
-}
+    {
+      items : int list
+    }
 
 let empty = { items = [] }
 
