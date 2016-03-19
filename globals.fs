@@ -6,20 +6,20 @@ open Type
 let first_global = 16
 let last_global = 255
 
-let global_addr story (Global global) = 
-  if global < first_global || global > last_global then
+let global_addr story (Global globall) = 
+  if globall < first_global || globall > last_global then
       failwith "global variable index out of range"
   else
-    let (Global_table_base base) = Story.global_variables_table_base story in
-    let base = Word_address base in
-    let offset = global - first_global in
-    inc_word_addr_by base offset
+    let (Global_table_base baase) = Story.global_variables_table_base story in
+    let baase = Word_address baase in
+    let offset = globall - first_global in
+    inc_word_addr_by baase offset
 
-let read story global =
-    Story.read_word story (global_addr story global)
+let read story globall =
+    Story.read_word story (global_addr story globall)
 
-let write story global value =
-    Story.write_word story (global_addr story global) value
+let write story globall value =
+    Story.write_word story (global_addr story globall) value
     
 let display story =
   let to_string g =
