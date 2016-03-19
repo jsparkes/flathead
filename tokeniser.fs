@@ -3,11 +3,11 @@ module Tokeniser
 open Type
 
 type token =
-{
-  token_text : string;
-  start : int; (* Offset in the input text *)
-  dictionary_address : dictionary_address
-}
+    {
+      token_text : string;
+      start : int; (* Offset in the input text *)
+      dictionary_address : dictionary_address
+    }
 
 (* TODO: Get word separator list from story *)
 
@@ -31,14 +31,14 @@ let tokenise story text =
       None
     else
       let end_of_token = find_space_or_end start in
-      let token_text = String.sub text start (end_of_token - start) in
+      let token_text = text.Substring(start, (end_of_token - start)) in
       let dictionary_address = Dictionary.lookup story token_text in
-      Some {token_text; start; dictionary_address} in
+      Some {token_text = token_text; start = start; dictionary_address = dictionary_address} in
 
   let rec aux i acc =
     match find_token i with
     | None -> acc
-    | Some ({token_text; start; dictionary_address} as token) ->
+    | Some ({token_text = token_text; start = start; dictionary_address = dictionary_address} as token) ->
       let token_length = String.length token_text in
       let next_non_space = skip_spaces (i + token_length) in
       let new_acc = token :: acc in
@@ -62,7 +62,7 @@ let write_tokens items address max_parse story =
   let rec aux items address count story =
     match items with
     | [] -> story
-    | {token_text; start; dictionary_address} :: tail ->
+    | {token_text = token_text; start = start; dictionary_address = dictionary_address} :: tail ->
       if count = max_parse then
         story
       else
