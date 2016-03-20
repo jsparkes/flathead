@@ -42,7 +42,7 @@ let all_reachable_addresses_in_routine story instr_address =
 
 let display_reachable_instructions story address =
   let reachable = all_reachable_addresses_in_routine story address in
-  let sorted = List.sort compare reachable in
+  let sorted = Set.toList reachable in
   let to_string addr =
     let instr = Instruction.decode story addr in
     Instruction.display instr story in
@@ -62,7 +62,7 @@ let reachable_routines_in_routine story instr_address =
     match Instruction.call_address instr story with
     | None -> routines
     | Some routine_address -> routine_address :: routines in
-  List.fold_left option_fold [] reachable_instrs
+  List.fold_left option_fold [] (Set.toList reachable_instrs)
 
 let all_routines story =
   let ipc = Story.initial_program_counter story in
@@ -70,10 +70,10 @@ let all_routines story =
   let relation routine =
       reachable_routines_in_routine story (Routine.first_instruction story routine) in
   let all_routines = reflexive_closure_many called_by_main relation in
-  List.sort compare all_routines
+  Set.toList all_routines
 
 let display_all_routines story =
   let routines = all_routines story in
   let to_string r =
-    (display_routine story r) ^ "\n\n" in
+    (display_routine story r) + "\n\n" in
   accumulate_strings to_string routines
