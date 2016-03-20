@@ -75,7 +75,7 @@ let display_frame frame =
 let make_frame_record frame =
   let locals = Local_store.make_locals_record frame.local_store in
   let stack = Evaluation_stack.make_stack_records frame.stack in
-  let arguments_byte = (1 lsl frame.local_store.Local_store.arguments_supplied) - 1 in
+  let arguments_byte = (1 lsl frame.local_store.arguments_supplied) - 1 in
   let (Instruction resume_at) = frame.resume_at in
 (* TODO Move this into the Quetzal module *)
   let (discard_value, target_variable) =

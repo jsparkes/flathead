@@ -31,7 +31,7 @@ let display_stack stack =
   let to_string item =
     Printf.sprintf " %04x" item in
   let folder acc item =
-    acc ^ (to_string item) in
+    acc + (to_string item) in
   let items =  stack.items in
   List.fold_left folder "" items
 

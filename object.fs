@@ -374,7 +374,7 @@ let display_object_table story =
     let object_text =
       Printf.sprintf "%04d: %04x%04x%04x %04x %04x %04x %s " i flags1 flags2 flags3 parent sibling child name in
     let properties_text = display_properties story current in
-    object_text ^ properties_text + "\n" in
+    object_text + properties_text + "\n" in
   accumulate_strings_loop to_string 1 (count + 1)
 
 (* Count down all the objects in the object table and record which ones have no parent. *)

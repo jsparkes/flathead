@@ -1,5 +1,7 @@
 module Frameset
 
+open Utility
+
 (* The frame set is the stack of activation frames; each activation frame
 has a local variable storage, evaluation stack, and information about
 the call site that created this activation. *)
@@ -61,4 +63,4 @@ let make_frameset_from_records frame_records =
   let initial_frame = Frame.make_frame_from_record (List.hd oldest_first) in
   let newest_first = List.rev (List.tl oldest_first) in
   let frames = List.map Frame.make_frame_from_record newest_first in
-  { initial_frame; frames }
+  { initial_frame = initial_frame; frames = frames }

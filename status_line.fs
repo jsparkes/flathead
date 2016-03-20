@@ -29,7 +29,7 @@ let make story =
       if left_length + right_length < width then left
       else left_string left (width - right_length - 1) in (* TODO: Assumes that width >= right_length *)
     let space_count = width - right_length - (String.length left_trimmed) in
-    left_trimmed ^ (spaces space_count) ^ right in
+    left_trimmed + (spaces space_count) + right in
   let time_status () =
     let (hours, minutes) = status_globals () in
     let suffix = if hours >= 12 then "PM" else "AM" in
