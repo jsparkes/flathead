@@ -40,13 +40,14 @@ let read_local local_store (Local local) =
     Map.find local local_store.locals
 
 (* Handy debugging methods *)
-//let display_locals local_store =
-//  let to_string local value =
-//    Printf.sprintf "local%01x=%04x " (local - 1) value in
-//  let folder local value acc =
-//    acc + (to_string local value) in
-//  let locals = local_store.locals in
-//  Map.fold folder locals ""
+let display_locals local_store =
+  let to_string local value =
+    Printf.sprintf "local%01x=%04x " (local - 1) value in
+  let folder local value acc =
+    acc + (to_string local value) in
+  let locals = local_store.locals in
+  Map.fold folder locals ""
+  
 
 let make_locals_record local_store =
   let rec aux acc n =
