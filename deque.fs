@@ -115,14 +115,14 @@ let dequeue_back deque =
 let peek_front_at deque n =
   let length = deque.front_length + deque.back_length in
   if (n < 0) || (n >= length) then raise InvalidIndex
-  else if n < deque.front_length then List.nth deque.front n
-  else List.nth deque.back (length - 1 - n)
+  else if n < deque.front_length then List.item n deque.front
+  else List.item (length - 1 - n) deque.back 
 
 let peek_back_at deque n =
   let length = deque.front_length + deque.back_length in
   if (n < 0) || (n >= length) then raise InvalidIndex
-  else if n < deque.back_length then List.nth deque.back n
-  else List.nth deque.front (length - 1 - n)
+  else if n < deque.back_length then List.item n deque.back
+  else List.item (length - 1 - n) deque.front 
 
 let rec set_front_at deque item n =
   if n = 0 then enqueue_front (dequeue_front deque) item

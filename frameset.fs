@@ -47,8 +47,8 @@ let write_local frameset local value =
   set_current_frame frameset (Frame.write_local (current_frame frameset) local value)
 
 let display_frames frameset =
-  let folder acc f =acc ^ (Frame.display_frame f) in
-  (List.fold_left folder "" frameset.frames) ^ (Frame.display_frame frameset.initial_frame)
+  let folder acc f =acc + (Frame.display_frame f) in
+  (List.fold_left folder "" frameset.frames) + (Frame.display_frame frameset.initial_frame)
 
 let make_frameset_record frameset =
   let head = Frame.make_frame_record frameset.initial_frame in

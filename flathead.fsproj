@@ -52,12 +52,12 @@
     <Compile Include="utility.fs" />
     <Compile Include="deque.fs" />
     <None Include="App.config" />
-    <Compile Include="compression.fs" />
     <Compile Include="iff.fs" />
     <Compile Include="immutable_bytes.fs" />
     <Compile Include="story.fs" />
     <Compile Include="zstring.fs" />
     <Compile Include="dictionary.fs" />
+    <Compile Include="compression.fs" />
     <Compile Include="routine.fs" />
     <Compile Include="local_store.fs" />
     <Compile Include="evaluation_stack.fs" />

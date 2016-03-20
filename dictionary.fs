@@ -83,7 +83,7 @@ let lookup story text =
   let count = entry_count story in
   let truncated = truncate text (max_word_length story) in
   let compare i =
-    String.compare (entry story (Dictionary i)) truncated in
+    (entry story (Dictionary i)).CompareTo(truncated) in
   match binary_search 0 count compare with
   | None -> invalid_address
   | Some entry_index -> entry_address story (Dictionary entry_index)
@@ -91,9 +91,9 @@ let lookup story text =
 let display_dictionary story =
   let count = entry_count story in
   let header =
-    (Printf.sprintf "Separator count: %d\n" (word_separators_count story)) ^
-    (Printf.sprintf "Entry length:    %d\n" (entry_length story)) ^
+    (Printf.sprintf "Separator count: %d\n" (word_separators_count story)) +
+    (Printf.sprintf "Entry length:    %d\n" (entry_length story)) +
     (Printf.sprintf "Entry count:     %d\n" count) in
   let to_string i =
     Printf.sprintf "%04x: %s\n" i (entry story (Dictionary i)) in
-  header ^ (accumulate_strings_loop to_string 0 count)
+  header + (accumulate_strings_loop to_string 0 count)

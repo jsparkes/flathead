@@ -10,8 +10,8 @@ let compress story =
     if i = memory_length then
       acc
     else if c = 256 then
-      let encoded = "\000" ^ (string_of_byte (c - 1)) in
-      aux (acc ^ encoded) i 0
+      let encoded = "\000" + (string_of_byte (c - 1)) in
+      aux (acc + encoded) i 0
     else
       let original_byte = Story.read_byte original_story (Byte_address i) in
       let current_byte = Story.read_byte story (Byte_address i) in
@@ -19,11 +19,11 @@ let compress story =
       if combined = 0 then
         aux acc (i + 1) (c + 1)
       else if c > 0 then
-        let encoded = "\000" ^ (string_of_byte (c - 1)) ^ (string_of_byte combined) in
-        aux (acc ^ encoded) (i + 1) 0
+        let encoded = "\000" + (string_of_byte (c - 1)) + (string_of_byte combined) in
+        aux (acc + encoded) (i + 1) 0
       else
         let encoded = string_of_byte combined in
-        aux (acc ^ encoded) (i + 1) 0 in
+        aux (acc + encoded) (i + 1) 0 in
   Compressed (aux "" 0 0)
 
 let apply_uncompressed_changes story (Uncompressed uncompressed) =
