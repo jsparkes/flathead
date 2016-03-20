@@ -2,16 +2,17 @@ module Screen
 
 open Utility
 open Type
+open Window
 
 type t =
-{
-  status : status_line;
-  upper_window : Window.t;
-  lower_window : Window.t;
-  height : character_height;
-  width : character_width;
-  selected_window : window_selection;
-}
+    {
+      status : status_line;
+      upper_window : Window.t;
+      lower_window : Window.t;
+      height : character_height;
+      width : character_width;
+      selected_window : window_selection;
+    }
 
 let make height width =
   let (Character_height h) = height in
@@ -32,8 +33,8 @@ let make height width =
       Word_wrap_enabled
       Scroll_enabled
       More_enabled;
-    height;
-    width;
+    height = height;
+    width = width;
     selected_window = Lower_window
   }
 
@@ -47,7 +48,7 @@ let status screen =
   screen.status
 
 let set_status screen status =
-  { screen with status }
+  { screen with status = status }
 
 let selected_window screen =
   screen.selected_window
@@ -99,7 +100,7 @@ let split_window screen new_upper_height =
   let (new_upper_lines, new_lower_lines) = Deque.split (lines screen) h in
   let upper_window = Window.set_lines screen.upper_window new_upper_lines in
   let lower_window = Window.set_lines screen.lower_window new_lower_lines in
-  let new_screen = { screen with upper_window; lower_window } in
+  let new_screen = { screen with upper_window = upper_window; lower_window = lower_window } in
 
   (* We have a new screen with the right text in the windows, but the cursors
   are possibly wrong. Fix the upper cursor first. *)
@@ -126,7 +127,7 @@ let split_window screen new_upper_height =
   If a split takes place which would cause the upper window to swallow the
   lower window's cursor position, the interpreter should move the lower
   window's cursor down to the line just below the upper window's new size. *)
-  let new_screen = { new_screen with upper_window; lower_window } in
+  let new_screen = { new_screen with upper_window = upper_window; lower_window = lower_window } in
   let original_lower_cursor = lower_cursor screen in
   let new_screen =
     if Window.cursor_in_bounds upper_window original_lower_cursor then
@@ -173,11 +174,11 @@ let clear_more screen =
   { screen with lower_window = Window.clear_more screen.lower_window }
 
 let erase_line screen =
-match screen.selected_window with
-| Lower_window ->
-  { screen with lower_window = Window.erase_line screen.lower_window }
-| Upper_window ->
-  { screen with upper_window = Window.erase_line screen.upper_window }
+    match screen.selected_window with
+        | Lower_window ->
+          { screen with lower_window = Window.erase_line screen.lower_window }
+        | Upper_window ->
+          { screen with upper_window = Window.erase_line screen.upper_window }
 
 let get_active_cursor screen =
   match screen.selected_window with
@@ -186,7 +187,7 @@ let get_active_cursor screen =
 
 let set_word_wrap screen can_wrap =
   let lower_window = Window.set_can_wrap screen.lower_window can_wrap in
-  { screen with lower_window }
+  { screen with lower_window = lower_window }
 
 let set_lower_cursor_bottom_left screen =
   let (Character_height h) = screen.height in
