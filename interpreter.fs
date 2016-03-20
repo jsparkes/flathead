@@ -300,9 +300,9 @@ let print interpreter text =
       if interpreter.screen_selected then Screen.print interpreter.screen text
       else interpreter.screen in
     { interpreter with
-      transcript = new_transcript;
-      screen = new_screen;
-      has_new_output = interpreter.screen_selected }
+                  transcript = new_transcript;
+                  screen = new_screen;
+                  has_new_output = interpreter.screen_selected }
 
 (* Handlers for individual instructions
 
@@ -1258,30 +1258,30 @@ let handle_erase_window window interpreter =
      while the upper window's cursor moves to top left *)
   let window = signed_word window in
   let unsplit = match window with
-    | -2 -> interpreter.screen
-    | -1 -> Screen.split_window interpreter.screen (Character_height 0)
-    | _ -> interpreter.screen in
+                | -2 -> interpreter.screen
+                | -1 -> Screen.split_window interpreter.screen (Character_height 0)
+                | _ -> interpreter.screen in
   let erased = match window with
-    | -2
-    | -1 -> Screen.erase_all unsplit
-    | 0 -> Screen.erase_lower unsplit
-    | 1 -> Screen.erase_upper unsplit
-    | _ -> failwith "unexpected window number in erase_window" in
+                | -2
+                | -1 -> Screen.erase_all unsplit
+                | 0 -> Screen.erase_lower unsplit
+                | 1 -> Screen.erase_upper unsplit
+                | _ -> failwith "unexpected window number in erase_window" in
   let upper_moved = match window with
-    | -2
-    | -1
-    | 1 -> Screen.set_upper_cursor erased Window.top_left
-    | _ -> erased in
+                    | -2
+                    | -1
+                    | 1 -> Screen.set_upper_cursor erased Window.top_left
+                    | _ -> erased in
   let lower_moved = match window with
-    | -2
-    | -1
-    | 0 ->
-      if Story.v4_or_lower (Story.version interpreter.story) then
-        Screen.set_lower_cursor_bottom_left upper_moved
-      else
-        Screen.set_lower_cursor upper_moved Window.top_left
-    | _ -> upper_moved in
-  { interpreter with screen = lower_moved }
+                    | -2
+                    | -1
+                    | 0 ->
+                      if Story.v4_or_lower (Story.version interpreter.story) then
+                        Screen.set_lower_cursor_bottom_left upper_moved
+                      else
+                        Screen.set_lower_cursor upper_moved Window.top_left
+                    | _ -> upper_moved in
+                          { interpreter with screen = lower_moved }
 
 (* Spec: VAR:238 erase_line value
 Versions 4 and 5: if the value is 1, erase from the current cursor
@@ -1334,7 +1334,7 @@ size information in its initial entry.) *)
 
 let handle_get_cursor arr interpreter =
   let arr = Word_address arr in
-  let Cursor ((Character_x x),( Character_y y)) = Screen.get_active_cursor interpreter.screen in
+  let (Cursor ((Character_x x),( Character_y y))) = Screen.get_active_cursor interpreter.screen in
   let story = Story.write_word interpreter.story arr y in
   let story = Story.write_word story (inc_word_addr arr) x in
   { interpreter with story = story }
@@ -1360,9 +1360,9 @@ unspecified what happens when the value is neither 0 nor 1? *)
 let handle_buffer_mode flag interpreter =
   match flag with
   | 0 -> { interpreter with screen =
-    Screen.set_word_wrap interpreter.screen Word_wrap_disabled }
+                            Screen.set_word_wrap interpreter.screen Word_wrap_disabled }
   | 1 -> { interpreter with screen =
-    Screen.set_word_wrap interpreter.screen Word_wrap_enabled }
+                            Screen.set_word_wrap interpreter.screen Word_wrap_enabled }
   | _ -> interpreter
 
 (* Spec: VAR:243  output_stream number
@@ -1385,16 +1385,16 @@ let handle_buffer_mode flag interpreter =
 let handle_output_stream1 stream interpreter =
   let stream = signed_word stream in
   let new_interpreter = match stream with
-  | 0 -> interpreter
-  | 1 -> select_output_stream interpreter ScreenStream true
-  | -1 -> select_output_stream interpreter ScreenStream false
-  | 2 -> select_output_stream interpreter TranscriptStream true
-  | -2 -> select_output_stream interpreter TranscriptStream true
-  | 3 -> failwith "Illegal to select stream 3 without table "
-  | -3 -> deselect_memory_stream interpreter
-  | 4 -> select_output_stream interpreter CommandStream true
-  | -4 -> select_output_stream interpreter CommandStream true
-  | _ -> failwith (Printf.sprintf "Invalid stream %d in output_stream" stream) in
+                          | 0 -> interpreter
+                          | 1 -> select_output_stream interpreter ScreenStream true
+                          | -1 -> select_output_stream interpreter ScreenStream false
+                          | 2 -> select_output_stream interpreter TranscriptStream true
+                          | -2 -> select_output_stream interpreter TranscriptStream true
+                          | 3 -> failwith "Illegal to select stream 3 without table "
+                          | -3 -> deselect_memory_stream interpreter
+                          | 4 -> select_output_stream interpreter CommandStream true
+                          | -4 -> select_output_stream interpreter CommandStream true
+                          | _ -> failwith (Printf.sprintf "Invalid stream %d in output_stream" stream) in
   new_interpreter
 
 let handle_output_stream2 stream table interpreter =
@@ -1816,7 +1816,7 @@ let step interpreter =
   if Screen.needs_scroll screen then
     { interpreter with screen = Screen.scroll screen; has_new_output = true }
   else
-    step_instruction { interpreter with screen; has_new_output = false }
+    step_instruction { interpreter with screen = screen; has_new_output = false }
 
 let step_with_input interpreter key =
   let key_text = string_of_char key in
