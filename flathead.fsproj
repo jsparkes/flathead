@@ -76,9 +76,9 @@
     <Compile Include="status_line.fs" />
     <Compile Include="interpreter.fs" />
     <Compile Include="my_graphics.fs" />
+    <Compile Include="reachability.fs" />
     <Compile Include="button.fs" />
     <Compile Include="debugger.fs" />
-    <Compile Include="reachability.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

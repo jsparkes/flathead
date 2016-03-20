@@ -195,8 +195,8 @@ let debugger_push_undo debugger new_interpreter =
     { debugger with interpreter = new_interpreter; redo_stack = [] }
   else
     { debugger with interpreter = new_interpreter;
-      undo_stack = debugger.interpreter :: debugger.undo_stack;
-      redo_stack = [] }
+                  undo_stack = debugger.interpreter :: debugger.undo_stack;
+                  redo_stack = [] }
 
 let needs_more debugger =
   let screen = Interpreter.screen debugger.interpreter in
@@ -286,24 +286,21 @@ let rec obtain_action debugger should_block =
     else
       action
 
-let pause debugger =
-  { debugger with state = Paused }
+let pause (debugger : t) = { debugger with state = Paused }
 
-let start_running debugger =
-  { debugger with state = Running }
+let start_running (debugger : t) = { debugger with state = Running }
 
 let clear_redo debugger =
   { debugger with redo_stack = [] }
 
 let add_keystroke debugger key =
- { debugger with keystrokes = debugger.keystrokes ^ (string_of_char key) }
+ { debugger with keystrokes = debugger.keystrokes + (string_of_char key) }
 
 let remove_keystroke debugger =
   let k = debugger.keystrokes in
-  { debugger with keystrokes = String.sub k 1 ((String.length k) - 1) }
+  { debugger with keystrokes = k.Substring(1, ((String.length k) - 1)) }
 
-let set_step_instruction debugger instruction =
-  { debugger with state = Stepping instruction }
+let set_step_instruction (debugger : t) instruction = { debugger with state = Stepping instruction }
 
 let maybe_step debugger =
   let should_step =
@@ -315,10 +312,9 @@ let maybe_step debugger =
   if should_step then step_forward debugger
   else debugger
 
-let halt debugger =
-  { debugger with state = Halted }
+let halt (debugger : t) = { debugger with state = Halted }
 
-  let draw_routine_listing debugger =
+let draw_routine_listing debugger =
     let current_instruction = Interpreter.program_counter debugger.interpreter in
     (* This can be zero if we were restored from a save game *)
     let frame = Interpreter.current_frame debugger.interpreter in
@@ -332,7 +328,8 @@ let halt debugger =
     let instr = Instruction.decode story current_instruction in
     let current = Instruction.display instr story in
     let reachable = Reachability.all_reachable_addresses_in_routine story first_instruction in
-    let sorted = List.sort compare reachable in
+    // Need to check if following works correctly
+    let sorted = Set.toList reachable in
     let decode instr =
       (instr, Instruction.display (Instruction.decode story instr) story) in
     let map = List.map decode sorted in
