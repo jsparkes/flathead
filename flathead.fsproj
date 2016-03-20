@@ -52,9 +52,7 @@
     <Compile Include="utility.fs" />
     <Compile Include="deque.fs" />
     <None Include="App.config" />
-    <Compile Include="button.fs" />
     <Compile Include="compression.fs" />
-    <Compile Include="debugger.fs" />
     <Compile Include="iff.fs" />
     <Compile Include="immutable_bytes.fs" />
     <Compile Include="story.fs" />
@@ -77,6 +75,8 @@
     <Compile Include="screen.fs" />
     <Compile Include="interpreter.fs" />
     <Compile Include="my_graphics.fs" />
+    <Compile Include="button.fs" />
+    <Compile Include="debugger.fs" />
     <Compile Include="reachability.fs" />
     <Compile Include="status_line.fs" />
   </ItemGroup>

@@ -4,13 +4,13 @@ open Type
 open My_graphics
 
 type t =
-{
-  x : pixel_x;
-  y : pixel_y;
-  width : pixel_width;
-  height : pixel_height;
-  text : string
-}
+    {
+      x : pixel_x;
+      y : pixel_y;
+      width : pixel_width;
+      height : pixel_height;
+      text : string
+    }
 
 let width button =
   button.width

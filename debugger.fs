@@ -2,7 +2,8 @@ module Debugger
 
 open Utility
 open My_graphics
-open Type;;
+open Type
+open Interpreter
 
 type state =
   | Paused
@@ -20,14 +21,14 @@ type action =
   | NoAction
 
 type t =
-{
-  undo_stack : Interpreter.t list;
-  redo_stack : Interpreter.t list;
-  interpreter : Interpreter.t;
-  state : state;
-  keystrokes : string;
-  buttons :  (Button.t * action) list;
-}
+    {
+      undo_stack : Interpreter.t list;
+      redo_stack : Interpreter.t list;
+      interpreter : Interpreter.t;
+      state : state;
+      keystrokes : string;
+      buttons :  (Button.t * action) list;
+    }
 
 let add_characters_y y h =
   let hp = chars_to_pixels_h h in
@@ -91,7 +92,7 @@ let draw_status screen =
   let status_color = Graphics.blue in
   match Screen.status screen with
   | Status None  -> ()
-  | Status Some status ->
+  | Status (Some status) ->
     let h = Screen.height screen in
     let y = add_characters_y y h in
     draw_string_at status status_color x y
@@ -112,7 +113,7 @@ let rec draw_screen screen =
 
 let trim_to_length text length =
   if (String.length text) <= length then text
-  else String.sub text 0 length
+  else text.Substring(0, length)
 
 (* x and y in screen coordinates; width and height in characters *)
 let draw_before_current_after before current after x y width height =
@@ -125,17 +126,17 @@ let draw_before_current_after before current after x y width height =
       match items with
       | [] -> ()
       | text :: tail -> (
-        let text_y = add_characters_y y (Character_height n) in
-        draw_string_at text before_color x text_y;
-        draw_before tail (n + 1)) in
+                            let text_y = add_characters_y y (Character_height n) in
+                            draw_string_at text before_color x text_y;
+                            draw_before tail (n + 1)) in
   let rec draw_after items n =
     if n > 0 then
       match items with
       | [] -> ()
       | text :: tail -> (
-        let text_y = add_characters_y y (Character_height n) in
-        draw_string_at text after_color x text_y;
-        draw_after tail (n - 1)) in
+                            let text_y = add_characters_y y (Character_height n) in
+                            draw_string_at text after_color x text_y;
+                            draw_after tail (n - 1)) in
   let w = chars_to_pixels_w width in
   let h = chars_to_pixels_h height in
   fill_rect Graphics.background x y w h;
@@ -172,15 +173,15 @@ let draw_undo_redo debugger =
       match undo with
       | [] -> ()
       | h :: t -> (
-        draw_line h n undo_color;
-        draw_undo t (n + 1)) in
+                    draw_line h n undo_color;
+                    draw_undo t (n + 1)) in
   let rec draw_redo redo n =
     if n > 0 then
       match redo with
       | [] -> ()
       | h :: t -> (
-        draw_line h n redo_color;
-        draw_redo t (n - 1)) in
+                    draw_line h n redo_color;
+                    draw_redo t (n - 1)) in
   fill_rect Graphics.background window_x window_y window_w window_h;
   draw_undo debugger.undo_stack ( ch / 2 + 1);
   draw_line debugger.interpreter (ch / 2) current_color;
@@ -224,16 +225,16 @@ let step_reverse debugger =
   match debugger.undo_stack with
   | [] -> debugger
   | h :: t -> { debugger with
-    undo_stack = t;
-    interpreter = h;
-    redo_stack = debugger.interpreter :: debugger.redo_stack };;
+                    undo_stack = t;
+                    interpreter = h;
+                    redo_stack = debugger.interpreter :: debugger.redo_stack };;
 
 let step_forward debugger =
   match debugger.redo_stack with
   | h :: t -> { debugger with
-    undo_stack = debugger.interpreter :: debugger.undo_stack;
-    interpreter = h;
-    redo_stack = t }
+                    undo_stack = debugger.interpreter :: debugger.undo_stack;
+                    interpreter = h;
+                    redo_stack = t }
   | [] ->
     let interpreter = debugger.interpreter in
     let state = Interpreter.state interpreter in
@@ -248,7 +249,7 @@ let step_forward debugger =
           (interpreter, debugger.keystrokes)
         else
           (Interpreter.step_with_input interpreter debugger.keystrokes.[0],
-          String.sub debugger.keystrokes 1 ((String.length debugger.keystrokes) - 1)) in
+           debugger.keystrokes.Substring(1, ((String.length debugger.keystrokes) - 1))) in
       { (debugger_push_undo debugger new_interpreter) with keystrokes = new_keys }
     | Interpreter.Halted -> debugger (* TODO: Exception? *)
     | Interpreter.Running ->
