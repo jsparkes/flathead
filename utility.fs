@@ -11,6 +11,7 @@ let (mod) a b = a % b
 let (land) a b = a &&& b
 let lnot n = ~~~ n
 let (lor) a b = a ||| b
+let (lxor) a b = a ^^^ b
 let (lsl) a b = a <<< b
 let (lsr) a b = a >>> b
 // Is this correct?
