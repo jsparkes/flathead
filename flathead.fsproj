@@ -61,7 +61,6 @@
     <Compile Include="routine.fs" />
     <Compile Include="local_store.fs" />
     <Compile Include="evaluation_stack.fs" />
-    <Compile Include="flathead.fs" />
     <Compile Include="frame.fs" />
     <Compile Include="frameset.fs" />
     <Compile Include="globals.fs" />
@@ -79,6 +78,7 @@
     <Compile Include="reachability.fs" />
     <Compile Include="button.fs" />
     <Compile Include="debugger.fs" />
+    <Compile Include="flathead.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
