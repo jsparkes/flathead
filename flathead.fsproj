@@ -61,12 +61,12 @@
     <Compile Include="routine.fs" />
     <Compile Include="local_store.fs" />
     <Compile Include="evaluation_stack.fs" />
-    <Compile Include="frame.fs" />
-    <Compile Include="frameset.fs" />
     <Compile Include="globals.fs" />
     <Compile Include="randomness.fs" />
     <Compile Include="transcript.fs" />
     <Compile Include="instruction.fs" />
+    <Compile Include="frame.fs" />
+    <Compile Include="frameset.fs" />
     <Compile Include="quetzal.fs" />
     <Compile Include="tokeniser.fs" />
     <Compile Include="object.fs" />
