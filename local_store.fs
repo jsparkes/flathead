@@ -46,7 +46,12 @@ let display_locals local_store =
   let folder local value acc =
     acc + (to_string local value) in
   let locals = local_store.locals in
-  Map.fold folder locals ""
+  // F# fold expects return type to be int
+  //Map.fold folder locals ""
+  let mutable s = ""
+  for kvp in locals do
+    s <- s + to_string kvp.Key kvp.Value
+  s
   
 
 let make_locals_record local_store =
