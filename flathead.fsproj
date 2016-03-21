@@ -74,6 +74,7 @@
     <Compile Include="screen.fs" />
     <Compile Include="status_line.fs" />
     <Compile Include="interpreter.fs" />
+    <Compile Include="Graphics.fs" />
     <Compile Include="my_graphics.fs" />
     <Compile Include="reachability.fs" />
     <Compile Include="button.fs" />
