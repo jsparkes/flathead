@@ -110,7 +110,7 @@ let write_user_string_to_memory story (Input_buffer text_addr) trimmed =
       user-supplied characters in the buffer. *)
       let current_letters = Story.read_byte story (Byte_address (text_addr + 1)) in
       let story = Story.write_string story (String_address (text_addr + current_letters + 2)) trimmed in
-      let length = String.length trimmed in
+      let length = Array.length trimmed in
       Story.write_byte story (Byte_address (text_addr + 1)) (current_letters + length)
 
 (* TODO: Could use some helpers here to better type the parse buffer *)

@@ -21,6 +21,8 @@ let (asr) a b = a >>> b
 // with the OCaml code.
 let char_of_int b = char b
 let int_of_char c = int c
+let int_of_byte (b : byte) = int b
+let string_to_bytes (s : string) = System.Text.ASCIIEncoding.ASCII.GetBytes(s)
 
 type List<'a> with
   static member fold_left a b c = List.fold a b c
@@ -180,11 +182,12 @@ let display_bytes get_byte first length =
   (accumulate_strings_loop to_string first (first + length)) + "\n"
 
 let get_file filename =
-  string(System.IO.File.ReadAllBytes(filename))
+  System.IO.File.ReadAllBytes(filename)
 
-let write_file filename (text : string) =
+let write_file filename (text : byte[]) =
   //System.IO.File.WriteAllBytes(filename, System.Text.UTF8Encoding.UTF8.GetBytes(text))
-  System.IO.File.WriteAllBytes(filename, System.Text.ASCIIEncoding.ASCII.GetBytes(text))
+  System.IO.File.WriteAllBytes(filename, text)
+
 
 let rec first_match items predicate =
   // List.tryFind items predicate
@@ -250,8 +253,8 @@ let is_in_range (Byte_address address) size =
 let is_out_of_range address size =
     not (is_in_range address size)
 
-let dereference_string address bytes =
-  if is_out_of_range address (String.length bytes) then
+let dereference_string address (bytes : byte[]) =
+  if is_out_of_range address (bytes.Length) then
     failwith "address out of range"
   else
     let (Byte_address addr) = address in

@@ -10,8 +10,8 @@ let compress story =
     if i = memory_length then
       acc
     else if c = 256 then
-      let encoded = "\000" + (string_of_byte (c - 1)) in
-      aux (acc + encoded) i 0
+      let encoded = [| 0uy; (byte (c - 1)) |] in
+      aux (Array.append acc encoded) i 0
     else
       let original_byte = Story.read_byte original_story (Byte_address i) in
       let current_byte = Story.read_byte story (Byte_address i) in
@@ -19,12 +19,12 @@ let compress story =
       if combined = 0 then
         aux acc (i + 1) (c + 1)
       else if c > 0 then
-        let encoded = "\000" + (string_of_byte (c - 1)) + (string_of_byte combined) in
-        aux (acc + encoded) (i + 1) 0
+        let encoded = [| 0uy; (byte (c - 1)); (byte combined) |] in
+        aux (Array.append acc encoded) (i + 1) 0
       else
-        let encoded = string_of_byte combined in
-        aux (acc + encoded) (i + 1) 0 in
-  Compressed (aux "" 0 0)
+        let encoded = [| byte combined |]in
+        aux (Array.append acc encoded) (i + 1) 0 in
+  Compressed (aux Array.empty 0 0)
 
 let apply_uncompressed_changes story (Uncompressed uncompressed) =
   (* We cannot simply say "make a new dynamic memory chunk out of
@@ -32,7 +32,7 @@ let apply_uncompressed_changes story (Uncompressed uncompressed) =
   that dynamic memory will be the "original" memory, which is wrong.
   We need to maintain the truly original loaded-off-disk memory. *)
   let original_story = Story.original story in
-  let length = String.length uncompressed in
+  let length = Array.length uncompressed in
   let rec aux index acc =
     if index >= length then
       acc
@@ -47,7 +47,7 @@ let apply_uncompressed_changes story (Uncompressed uncompressed) =
 
 let apply_compressed_changes story (Compressed compressed) =
   let original_story = Story.original story in
-  let length = String.length compressed in
+  let length = Array.length compressed in
   let rec aux index_change index_mem acc =
     if index_change >= length then
       acc

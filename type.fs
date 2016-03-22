@@ -78,8 +78,8 @@ type colour_number = Colour of int
 type terminating_characters_base = Terminating_characters_base of int
 type revision = Revision of int * int
 type alphabet_table = Alphabet_table of int
-type compressed_bytes = Compressed of string
-type uncompressed_bytes = Uncompressed of string
+type compressed_bytes = Compressed of byte[]
+type uncompressed_bytes = Uncompressed of byte[]
 type word_separator_number = Word_separator_number of int
 
 

@@ -2,10 +2,11 @@ module Quetzal
 
 open Iff
 open Type
+open Utility
 
 let ifzs_ifhd =
   Record [
-    Header "IFhd";
+    Header (string_to_bytes "IFhd");
     Length None;
     Integer16 None;       (* release number *)
     ByteString (None, 6); (* serial number *)
@@ -33,27 +34,27 @@ let ifzs_frame =
 
 let ifzs_stacks =
   Record [
-    Header "Stks";
+    Header (string_to_bytes "Stks");
     Length None;
     UnsizedList [ifzs_frame]]
 
 let ifzs_cmem =
   Record [
-    Header "CMem";
+    Header (string_to_bytes "CMem");
     Length None;
     RemainingBytes None]
 
 let ifzs_umem =
   Record [
-    Header "UMem";
+    Header (string_to_bytes "UMem");
     Length None;
     RemainingBytes None]
 
 let ifzd_form =
   Record [
-    Header "FORM";
+    Header (string_to_bytes "FORM");
     Length None;
-    SubHeader "IFZS";
+    SubHeader (string_to_bytes "IFZS");
     UnorderedList [
       ifzs_ifhd;
       ifzs_stacks;
@@ -67,68 +68,74 @@ let save
   (Instruction pc)
   (Compressed compressed) frames =
   Record [
-    Header "FORM";
+    Header (string_to_bytes "FORM");
     Length None; (* The writer will figure it out *)
-    SubHeader "IFZS";
+    SubHeader (string_to_bytes "IFZS");
     UnorderedList [
       Record [
-        Header "IFhd";
+        Header (string_to_bytes "IFhd");
         Length None;
         Integer16 (Some release);
-        ByteString (Some serial, 6);
+        ByteString (Some (string_to_bytes serial), 6);
         Integer16 (Some checksum);
         Integer24 (Some pc) ];
       Record [
-        Header "CMem";
+        Header (string_to_bytes "CMem");
         Length None;
         RemainingBytes (Some compressed)];
       Record [
-        Header "Stks";
+        Header (string_to_bytes "Stks");
         Length None;
         UnsizedList frames] ] ]
 
 let read_ifzd_chunks ifzd =
+  let form_bytes = (string_to_bytes "FORM")
+  let izfs_bytes = (string_to_bytes "IZFS")
   match ifzd with
   | Record [
-              Header "FORM";
+              Header form_bytes;
               Length _;
-              SubHeader "IFZS";
+              SubHeader (izfs_bytes);
               UnorderedList items] ->
       items
   | _ -> failwith "TODO: Handle failure reading ifzd"
 
 let read_header ifzd =
+  let ifhd_bytes = (string_to_bytes "IFhd")
   let chunks = read_ifzd_chunks ifzd in
-  let ifhd = find_record chunks "IFhd" in
+  let ifhd = find_record chunks ifhd_bytes in
   match ifhd with
   | Some (Record [
-                  Header "IFhd";
+                  Header ifhd_bytes;
                   Length _;
                   Integer16 (Some release_number);
                   ByteString (Some serial_number, 6);
                   Integer16 (Some checksum);
                   Integer24 (Some pc) ]) ->
-    ((Release_number release_number), (Serial_number serial_number), (Checksum checksum), pc)
+    ((Release_number release_number), (Serial_number (string serial_number)), (Checksum checksum), pc)
   | _ -> failwith "TODO handle failure reading ifhd"
 
 let read_stacks ifzd =
+  let stks_bytes = string_to_bytes "Stks"
   let chunks = read_ifzd_chunks ifzd in
-  let stacks_chunk = find_record chunks "Stks" in
+  let stacks_chunk = find_record chunks stks_bytes in
   match stacks_chunk with
   | Some (Record [
-                  Header "Stks";
+                  Header stks_bytes;
                   Length _;
                   UnsizedList items ]) -> items
   | _ -> failwith "TODO handle failure reading stacks"
 
 let read_memory ifzd =
+  let cmem_bytes = string_to_bytes "CMem"
+  let umem_bytes = string_to_bytes "UMem"
   let chunks = read_ifzd_chunks ifzd in
-  let cmem_chunk = find_record chunks "CMem" in
-  let umem_chunk = find_record chunks "UMem" in
+  let cmem_chunk = find_record chunks cmem_bytes in
+  let umem_chunk = find_record chunks umem_bytes in
   let compressed = match cmem_chunk with
                     | None -> None
                     | Some (Record [
-                                    Header "CMem";
+                                    Header cmem_bytes;
                                     Length (Some length);
                                     RemainingBytes (Some bytes)]) ->
                       Some (Compressed bytes)
@@ -136,7 +143,7 @@ let read_memory ifzd =
   let uncompressed = match umem_chunk with
                         | None -> None
                         | Some (Record [
-                                        Header "UMem";
+                                        Header umem_bytes;
                                         Length (Some length);
                                         RemainingBytes (Some bytes)]) ->
                           Some (Uncompressed bytes)

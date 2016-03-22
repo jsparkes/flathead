@@ -3,11 +3,11 @@ module Iff
 open Utility
 
 type iff_contents =
-| Header of string
-| SubHeader of string
+| Header of byte[]
+| SubHeader of byte[]
 | Length of int option
-| RemainingBytes of string option
-| ByteString of (string option) * int
+| RemainingBytes of byte[] option
+| ByteString of (byte[] option) * int
 | Integer32 of int option
 | Integer24 of int option
 | Integer16 of int option
@@ -57,11 +57,11 @@ let read_iff_file filename root_form =
 
     let read_string_from_file offset length =
       if offset + length > end_position then raise BadFileFormat
-      else file.Substring(offset, length) in
+      else Array.sub file offset length in
 
     let read_int8_from_file offset =
       if offset >= end_position then raise BadFileFormat
-      else int_of_char file.[offset] in
+      else int_of_byte file.[offset] in
 
     let read_int32_from_file offset =
       if offset + 4 > end_position then
@@ -231,32 +231,36 @@ let read_iff_file filename root_form =
     | SizedList (size, forms) -> read_sized_list size forms
     | UnorderedList forms -> read_unordered_list forms in
     (* end of read_form *)
-  let (form, _) = read_form 0 root_form (String.length file) [] in
+  let (form, _) = read_form 0 root_form (file.Length) [] in
   remove_assign form
   (* end of read_iff_file *)
 
 let write_iff_file filename root_form =
   let rec write_form form =
-    let write_int32_to_file n =
-      let b0 = string_of_char (char_of_int (n land 0xff)) in
-      let b1 = string_of_char (char_of_int ((n asr 8 ) land 0xff)) in
-      let b2 = string_of_char (char_of_int ((n asr 16) land 0xff)) in
-      let b3 = string_of_char (char_of_int ((n asr 24) land 0xff)) in
-      b3 + b2 + b1 + b0 in
+    let write_int32_to_file n = 
+      [|
+        byte (n land 0xff)
+        byte ((n asr 8 ) land 0xff)
+        byte ((n asr 16) land 0xff)
+        byte ((n asr 24) land 0xff)
+      |]
 
     let write_int24_to_file n =
-      let b0 = string_of_char (char_of_int (n land 0xff)) in
-      let b1 = string_of_char (char_of_int ((n asr 8 ) land 0xff)) in
-      let b2 = string_of_char (char_of_int ((n asr 16) land 0xff)) in
-      b2 + b1 + b0 in
+      [|
+        byte (n land 0xff)
+        byte ((n asr 8 ) land 0xff)
+        byte ((n asr 16) land 0xff)
+      |]
 
     let write_int16_to_file n =
-      let b0 = string_of_char (char_of_int (n land 0xff)) in
-      let b1 = string_of_char (char_of_int ((n asr 8 ) land 0xff)) in
-      b1 + b0 in
+      [|
+        byte (n land 0xff)
+        byte ((n asr 8 ) land 0xff)
+      |]
 
     let write_int8_to_file n =
-      string_of_char (char_of_int (n land 0xff)) in
+      //string_of_char (char_of_int (n land 0xff)) in
+     [| byte n |]
 
     let write_bitfield fields =
       let rec process_field field =
@@ -268,20 +272,20 @@ let write_iff_file filename root_form =
       let folder b field =
         b lor (process_field field) in
       let v = List.fold_left folder 0 fields in
-      string_of_char (char_of_int v) in
+      [| byte v |] in
 
     let write_many s form =
-      s + (write_form form) in
+      Array.append s (write_form form) in
 
     let write_record forms =
       match forms with
       | (Header header) :: (Length _) :: tail ->
-        let body = List.fold_left write_many "" tail in
-        let length = String.length body in
-        let chunk = header + (write_int32_to_file length) + body in
-        let adjusted = if length mod 2 = 0 then chunk else chunk + "\000" in
+        let body = List.fold_left write_many Array.empty tail in
+        let length = body.Length in
+        let chunk = Array.append header (Array.append (write_int32_to_file length) body) in
+        let adjusted = if length mod 2 = 0 then chunk else Array.append chunk [| 0uy |] in
         adjusted
-      | _ -> List.fold_left write_many "" forms in
+      | _ -> List.fold_left write_many Array.empty forms in
 
     match form with
     | Header header -> header
@@ -297,9 +301,9 @@ let write_iff_file filename root_form =
     | Bit _ -> failwith "expected Bit inside bitfield"
     | BitField fields -> write_bitfield fields
     | Assign (_, named_form) -> write_form named_form
-    | SizedList (_, forms) -> List.fold_left write_many "" forms
-    | UnsizedList forms -> List.fold_left write_many "" forms
-    | UnorderedList forms -> List.fold_left write_many "" forms
+    | SizedList (_, forms) -> List.fold_left write_many Array.empty forms
+    | UnsizedList forms -> List.fold_left write_many Array.empty forms
+    | UnorderedList forms -> List.fold_left write_many Array.empty forms
     | Record forms -> write_record forms
     | _ -> failwith "unexpected form in write_form" in
   (* end of write_form *)

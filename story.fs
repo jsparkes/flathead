@@ -11,7 +11,7 @@ never changes at all. *)
 type t =
     {
       dynamic_memory : Immutable_bytes.t;
-      static_memory : string;
+      static_memory : byte[];
     }
 
 let make dynamic stattic =
@@ -75,21 +75,21 @@ let write_set_word_bit_to story address bit value =
 
 (* Writes bytes into memory; no zstring encoding, no zero
 termination, no length. *)
-let write_string story str text =
-  let length = String.length text in
+let write_string story str (text : byte[]) =
+  let length = text.Length in
   let rec aux i story =
     if i = length then
       story
     else
-      let story = write_byte story (byte_of_string str i) (int_of_char text.[i]) in
+      let story = write_byte story (byte_of_string str i) (int_of_byte text.[i]) in
       aux (i + 1) story in
   aux 0 story
 
 (* Writes a series of bytes into memory. Does not zstring encode them.
    Does zero-byte terminate them. *)
-let write_string_zero_terminate story sz text =
+let write_string_zero_terminate story sz (text : byte[]) =
   let null_byte = 0 in
-  let length = String.length text in
+  let length = text.Length in
   let str = string_of_sz sz in
   let story = write_string story str text in
   let terminator = byte_of_string str length in
@@ -101,7 +101,7 @@ let write_length_word_prefixed_string story wps text =
   let str = string_of_wps wps in
   let length_addr = length_addr_of_wps wps in
   let story = write_string story str text in
-  let length = String.length text in
+  let length = text.Length in
   write_word story length_addr length
 
 (* Writes a series of bytes into memory; no zero terminator,
@@ -110,7 +110,7 @@ let write_length_byte_prefixed_string story bps text =
   let str = string_of_bps bps in
   let length_addr = length_addr_of_bps bps in
   let story = write_string story str text in
-  let length = String.length text in
+  let length = text.Length in
   write_byte story length_addr length
 
 (* Debugging method for displaying a raw block of memory. *)
@@ -728,7 +728,7 @@ let decode_string_packed_address story (Packed_zstring packed) =
 
 let load filename =
   let file = get_file filename in
-  let len = String.length file in
+  let len = file.Length in
   if len < header_size then
     failwith (Printf.sprintf "%s is not a valid story file" filename)
   else
@@ -738,6 +738,6 @@ let load filename =
     if dynamic_length > len then
       failwith (Printf.sprintf "%s is not a valid story file" filename)
     else 
-      let dynamic = file.Substring(0, dynamic_length) in
-      let stattic = file.Substring(dynamic_length, (len - dynamic_length)) in
+      let dynamic = Array.sub file 0 dynamic_length in
+      let stattic = Array.sub file dynamic_length (len - dynamic_length) in
       make dynamic stattic
