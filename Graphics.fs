@@ -78,7 +78,7 @@ let open_graph arg =
     original_size <- (Console.WindowWidth, Console.WindowHeight)
     set_background background
     set_foreground foreground
-    Console.SetWindowSize(80, 50)
+    Console.SetWindowSize(130, 55)
     Console.Clear()
 
 let close_graph() = 
