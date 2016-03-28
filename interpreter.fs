@@ -294,10 +294,10 @@ let print interpreter text =
     let (Transcript_enabled transcript_enabled) = interpreter.transcript_selected in
     let new_transcript =
       if transcript_enabled then
-        Transcript.append interpreter.transcript (string text)
+        Transcript.append interpreter.transcript (bytes_to_string text)
       else interpreter.transcript in
     let new_screen =
-      if interpreter.screen_selected then Screen.print interpreter.screen (string text)
+      if interpreter.screen_selected then Screen.print interpreter.screen (bytes_to_string text)
       else interpreter.screen in
     { interpreter with
                   transcript = new_transcript;

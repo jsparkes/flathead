@@ -23,6 +23,7 @@ let char_of_int b = char b
 let int_of_char c = int c
 let int_of_byte (b : byte) = int b
 let string_to_bytes (s : string) = System.Text.ASCIIEncoding.ASCII.GetBytes(s)
+let bytes_to_string (buf : byte[]) = System.Text.ASCIIEncoding.ASCII.GetString()
 
 type List<'a> with
   static member fold_left a b c = List.fold a b c
