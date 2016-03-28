@@ -60,8 +60,11 @@ let left_string (text : string) length =
   text.Substring(0, length)
 
 let right_string (text : string) index =
-  text.Substring(index, ((String.length text) - index))
-
+  if index > String.length text then
+    ""
+  else
+    text.Substring(index, ((String.length text) - index))
+  
 let break_string (text : string) (target : char) =
   let index = text.IndexOf(target) in
   let left = left_string text index in
