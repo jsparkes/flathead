@@ -4,6 +4,7 @@ open System
 open System.Runtime.InteropServices
 
 open Type
+open Utility
 
 type status = {
     mouse_x : int;      (*	    X coordinate of the mouse    *)
@@ -51,13 +52,19 @@ let open_graph arg =
 let close_graph() = 
     let (w, h) = original_size
     Console.SetWindowSize(w, h)
-let moveto x y = Console.SetCursorPosition(x, y)
+let moveto x y = 
+    Console.SetCursorPosition(x, Console.WindowHeight - y)
 
 let fill_rect x y w h = 
     moveto x y
     Console.Write(Array.create w ' ')
 
-let draw_string (str : string) = Console.Write(str)
+let draw_string (str : string) = 
+    if str.Length + Console.CursorLeft >= Console.WindowWidth then
+        let sub = left_string str (Console.WindowWidth - Console.CursorLeft - 1)
+        Console.Write(sub)
+    else
+        Console.Write(str)
 // We don't measure in pixels
 let text_size (str : string) = (1, str.Length)
 let set_font name = ()
