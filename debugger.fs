@@ -30,6 +30,16 @@ type t =
       buttons :  (Button.t * action) list;
     }
 
+//let margin_w = Pixel_width 20 in
+let margin_w = Pixel_width 1 in
+//let margin_h = Pixel_height 20 in
+let margin_h = Pixel_height 1 in
+//let gap_w = Pixel_width 10 in
+let gap_w = Pixel_width 1 in
+//let gap_h = Pixel_height 10 in
+let gap_h = Pixel_height 1 in
+
+
 let add_characters_y y h =
   let hp = chars_to_pixels_h h in
   add_pixels_y y hp
@@ -51,14 +61,6 @@ let screen_extent screen =
 let make interpreter =
   let screen = Interpreter.screen interpreter in
   let (x, y, _, h) = screen_extent screen in
-  //let margin_w = Pixel_width 20 in
-  let margin_w = Pixel_width 2 in
-  //let margin_h = Pixel_height 20 in
-  let margin_h = Pixel_height 2 in
-  //let gap_w = Pixel_width 10 in
-  let gap_w = Pixel_width 1 in
-  //let gap_h = Pixel_height 10 in
-  let gap_h = Pixel_height 1 in
   let button_y = add_pixels_y y h in
   let button_y = add_pixels_y button_y gap_h in
   let button_list =
@@ -161,7 +163,6 @@ let draw_undo_redo debugger =
   let screen = Interpreter.screen interpreter in
   let (screen_x, screen_y, screen_w, screen_h) = screen_extent screen in
   let (Character_height ch) = Screen.height screen in
-  let gap_w = Pixel_width 10 in
   let window_x = add_pixels_x screen_x screen_w in
   let window_x = add_pixels_x window_x gap_w in
   let window_y = screen_y in
@@ -350,7 +351,8 @@ let draw_routine_listing debugger =
     let screen = Interpreter.screen debugger.interpreter in
     let (screen_x, screen_y, screen_w, screen_h) = screen_extent screen in
     let x = add_pixels_x screen_x screen_w in
-    let x = add_pixels_x x (Pixel_width 10) in
+    //let x = add_pixels_x x (Pixel_width 10) in
+    let x = add_pixels_x x (Pixel_width 1) in
     draw_before_current_after before current (List.rev after) x screen_y (Character_width 60) (Screen.height screen)
 
 (* TODO: Most of the methods in this module can be local to run *)
