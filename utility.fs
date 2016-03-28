@@ -49,7 +49,7 @@ let rec times f n item =
   if n = 0 then item else times f (n - 1) (f item)
 
 let spaces n =
-  string (Array.create n ' ')
+  bytes_to_string (Array.create n (byte ' '))
 
 let rec reverse_index_from (text : string) target index =
   if index < 0 then None
