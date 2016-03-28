@@ -73,7 +73,7 @@ let open_graph arg =
     original_size <- (Console.WindowWidth, Console.WindowHeight)
     Console.SetWindowSize(80, 50)
 
-let close_graph = 
+let close_graph() = 
     let (w, h) = original_size
     Console.SetWindowSize(w, h)
 let set_color color = Console.ForegroundColor <- color
@@ -93,7 +93,11 @@ let auto_synchronize flag = ()
 let synchronize() = ()
 
 let wait_next_event (events : List<Event>) = 
-    let k = Console.ReadKey(true)
-    let st = { mouse_x = 0; mouse_y = 0; button = false; keypressed = true; key = k.KeyChar}
-    { Graphics = st }
+    if List.contains Event.Poll events then
+        let st = { mouse_x = 0; mouse_y = 0; button = false; keypressed = Console.KeyAvailable; key = '\000'}
+        { Graphics = st }
+    else
+        let k = Console.ReadKey(true)
+        let st = { mouse_x = 0; mouse_y = 0; button = false; keypressed = true; key = k.KeyChar}
+        { Graphics = st }
         
