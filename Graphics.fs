@@ -15,45 +15,12 @@ type status = {
 
 type t = { Graphics : status}
 
-// Emulate the OCaml Graphics packages using Win32 Console functions.
-// This is sufficient for Z-Machine files.
-// Unfortunately imperative due to inexperience and wanting to maintain
-// compatiblity with OCaml code.
-//[<StructLayout(LayoutKind.Sequential)>]
-type COORD = 
-    struct
-        val x : Int16
-        val y : Int16
-    end
-
-// http://pinvoke.net/default.aspx/kernel32/AllocConsole.html
-[<DllImport("kernel32", SetLastError = true)>]
-extern bool AllocConsole()
-
-// http://pinvoke.net/default.aspx/kernel32/FreeConsole.html
-[<DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)>]
-extern bool FreeConsole()
-
-// http://pinvoke.net/default.aspx/kernel32/GetConsoleFontSize.html
-[<DllImport("kernel32.dll", SetLastError = true)>]
-extern COORD GetConsoleFontSize(IntPtr hConsoleOutput, Int32 nFont)
-
-// http://pinvoke.net/default.aspx/kernel32/GetStdHandle.html
-[<DllImport("kernel32.dll", SetLastError = true)>]
-extern IntPtr GetStdHandle(int nStdHandle)
-
-let mutable (console : IntPtr) = (IntPtr 0)
-
-let mutable original_size = (0, 0)
-let STD_INPUT_HANDLE = -10
-let STD_OUTPUT_HANDLE = -11
-let STD_ERROR_HANDLE = -12
-
 type Event = 
     | Key_pressed
     | Button_down
     | Poll
 
+let mutable original_size = (0, 0)
 
 // Luckily we don't need many colors
 let black = ConsoleColor.Black
