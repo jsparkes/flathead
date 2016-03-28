@@ -61,6 +61,11 @@ let blue = ConsoleColor.Blue
 let white = ConsoleColor.White
 let background = ConsoleColor.White
 let foreground = ConsoleColor.Black
+
+let set_color color = Console.ForegroundColor <- color
+let set_foreground color = Console.ForegroundColor <- color
+let set_background color = Console.BackgroundColor <- color
+
 let open_graph arg = 
     //    FreeConsole() |> ignore
     //    AllocConsole() |> ignore
@@ -71,14 +76,14 @@ let open_graph arg =
     //    let height = font_size.y
     //    ConsoleColor.
     original_size <- (Console.WindowWidth, Console.WindowHeight)
+    set_background background
+    set_foreground foreground
     Console.SetWindowSize(80, 50)
+    Console.Clear()
 
 let close_graph() = 
     let (w, h) = original_size
     Console.SetWindowSize(w, h)
-let set_color color = Console.ForegroundColor <- color
-let set_foreground color = Console.ForegroundColor <- color
-let set_background color = Console.BackgroundColor <- color
 let moveto x y = Console.SetCursorPosition(x, y)
 
 let fill_rect x y w h = 
