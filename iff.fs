@@ -238,24 +238,24 @@ let read_iff_file filename root_form =
 let write_iff_file filename root_form =
   let rec write_form form =
     let write_int32_to_file n = 
-      [|
-        byte ((n asr 24) land 0xff)
-        byte ((n asr 16) land 0xff)
-        byte ((n asr 8 ) land 0xff)
+      Array.rev [|
         byte (n land 0xff)
+        byte ((n asr 8 ) land 0xff)
+        byte ((n asr 16) land 0xff)
+        byte ((n asr 24) land 0xff)
       |]
 
     let write_int24_to_file n =
-      [|
-        byte ((n asr 16) land 0xff)
-        byte ((n asr 8 ) land 0xff)
+      Array.rev [|
         byte (n land 0xff)
+        byte ((n asr 8 ) land 0xff)
+        byte ((n asr 16) land 0xff)
       |]
 
-    let write_int16_to_file n =
-      [|
-        byte ((n asr 8 ) land 0xff)
+    let write_int16_to_file n = 
+      Array.rev [|
         byte (n land 0xff)
+        byte ((n asr 8 ) land 0xff)
       |]
 
     let write_int8_to_file n =
